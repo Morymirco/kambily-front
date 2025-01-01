@@ -3,12 +3,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { FaEnvelope, FaPhone, FaTrash } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showCartModal, setShowCartModal] = useState(false);
-  const [showSearchModal, setShowSearchModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
 
   const categories = [
     {
@@ -73,13 +73,6 @@ export default function Navbar() {
     const updatedCart = cartItems.filter(item => item.id !== itemId);
     // Mettez à jour votre état ici
     console.log('Item removed:', itemId);
-  };
-
-  // Ajoutez cette fonction pour gérer la recherche
-  const handleSearch = (e) => {
-    e.preventDefault();
-    // Ajoutez ici votre logique de recherche
-    console.log('Recherche:', searchQuery);
   };
 
   return (
@@ -303,14 +296,14 @@ export default function Navbar() {
 
             {/* Icônes droites */}
             <div className="w-[200px] flex items-center justify-end space-x-6">
-              <button 
-                onClick={() => setShowSearchModal(true)} 
-                className="hover:text-cyan-600"
+              <Link 
+                href="/boutique"
+                className="hover:text-cyan-600 transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-              </button>
+              </Link>
               <Link href="/profile" className="hover:text-cyan-600">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -407,63 +400,6 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-
-      {/* Modal de recherche */}
-      {showSearchModal && (
-        <>
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-50"
-            onClick={() => setShowSearchModal(false)}
-          />
-          <div className="fixed inset-x-0 top-0 bg-white shadow-lg z-50 p-4 animate-slideDown">
-            <div className="max-w-[1400px] mx-auto relative">
-              <form onSubmit={handleSearch} className="relative">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Rechercher un produit..."
-                  className="w-full pl-12 pr-16 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[#048B9A]"
-                  autoFocus
-                />
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setShowSearchModal(false)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </form>
-
-              {/* Suggestions de recherche (optionnel) */}
-              <div className="mt-4">
-                <h4 className="text-sm font-medium text-gray-500 mb-2">Recherches populaires</h4>
-                <div className="flex flex-wrap gap-2">
-                  {['Pyjama', 'Téléphones', 'Montres', 'Sacs'].map((term, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setSearchQuery(term);
-                        handleSearch({ preventDefault: () => {} });
-                      }}
-                      className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-600"
-                    >
-                      {term}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
     </nav>
   );
 }

@@ -3,6 +3,7 @@ import { Krub } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar/NavBar";
 import Footer from "./Components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
 
 const krub = Krub({
   variable: "--font-krub",
@@ -27,6 +28,7 @@ export default function RootLayout({
         <Navbar />
         {children}
         <Footer/>
+        <ScrollToTop />
       </body>
     </html>
   );

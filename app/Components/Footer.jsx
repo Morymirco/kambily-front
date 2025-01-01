@@ -37,19 +37,24 @@ const Footer = () => {
             <h3 className="text-xl font-bold mb-6">Service client</h3>
             <ul className="space-y-3 text-gray-400">
               <li>
-                <Link href="/aide" className="hover:text-white">Aide</Link>
+                <Link href="/aide" className="hover:text-white transition-colors">
+                  Aide
+                </Link>
               </li>
               <li>
-                <Link href="/compte" className="hover:text-white">Mon compte</Link>
+                <Link href="/profile" className="hover:text-white transition-colors">
+                  Mon compte
+                </Link>
               </li>
               <li>
-                <Link href="/commandes" className="hover:text-white">Suivre ma commande</Link>
+                <Link href="/commandes" className="hover:text-white transition-colors">
+                  Suivre ma commande
+                </Link>
               </li>
               <li>
-                <Link href="/favoris" className="hover:text-white">Mes favoris</Link>
-              </li>
-              <li>
-                <Link href="/retour" className="hover:text-white">Politique de retour</Link>
+                <Link href="/favoris" className="hover:text-white transition-colors">
+                  Mes favoris
+                </Link>
               </li>
             </ul>
           </div>
@@ -75,18 +80,30 @@ const Footer = () => {
         {/* Pied de page */}
         <div className="pt-8 mt-8 border-t border-gray-700">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            {/* Liens légaux */}
+            {/* Liens légaux avec navigation Next.js */}
             <div className="flex flex-wrap gap-6 text-sm text-gray-400">
-              <Link href="/confidentialite" className="hover:text-white">
+              <Link 
+                href="/confidentialite" 
+                className="hover:text-white transition-colors"
+              >
                 Politique de confidentialité
               </Link>
-              <Link href="/conditions" className="hover:text-white">
+              <Link 
+                href="/conditions" 
+                className="hover:text-white transition-colors"
+              >
                 Termes et conditions de vente
               </Link>
-              <Link href="/retour" className="hover:text-white">
+              <Link 
+                href="/retour" 
+                className="hover:text-white transition-colors"
+              >
                 Politique de retour
               </Link>
-              <Link href="/cookies" className="hover:text-white">
+              <Link 
+                href="/cookies" 
+                className="hover:text-white transition-colors"
+              >
                 Politique de cookies (Guinée)
               </Link>
             </div>

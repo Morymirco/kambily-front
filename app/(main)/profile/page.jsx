@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react';
-import { FaUser, FaShoppingBag, FaHeart, FaAddressCard, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import Image from 'next/image';
+import { FaUser, FaShoppingBag, FaHeart, FaAddressCard, FaCog, FaSignOutAlt, FaCamera } from 'react-icons/fa';
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('profile');
@@ -71,15 +72,38 @@ const Profile = () => {
 const ProfileContent = () => (
   <div>
     <h2 className="text-xl font-semibold mb-6">Informations Personnelles</h2>
-    <form className="space-y-4">
-      <div className="grid md:grid-cols-2 gap-4">
+    
+    {/* Photo de profil */}
+    <div className="mb-8 flex items-center gap-6">
+      <div className="relative">
+        <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100">
+          <Image
+            src="/team/mory.jpg"
+            alt="Profile"
+            fill
+            className="object-cover"
+          />
+        </div>
+        <button className="absolute bottom-0 right-0 bg-[#048B9A] text-white p-2 rounded-full hover:bg-[#037483] transition-colors">
+          <FaCamera size={14} />
+        </button>
+      </div>
+      <div>
+        <h3 className="font-medium text-lg">Mory koulibaly</h3>
+        <p className="text-gray-500">Membre depuis Mars 2024</p>
+      </div>
+    </div>
+
+    <form className="space-y-6">
+      <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Prénom
           </label>
           <input
             type="text"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#048B9A] focus:border-[#048B9A]"
+            defaultValue="Mory"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A] bg-gray-50"
           />
         </div>
         <div>
@@ -110,12 +134,15 @@ const ProfileContent = () => (
           />
         </div>
       </div>
-      <button
-        type="submit"
-        className="bg-[#048B9A] text-white px-6 py-2 rounded-md hover:bg-[#037483] transition-colors"
-      >
-        Sauvegarder les modifications
-      </button>
+
+      <div className="border-t pt-6">
+        <button
+          type="submit"
+          className="bg-[#048B9A] text-white px-8 py-3 rounded-lg hover:bg-[#037483] transition-colors"
+        >
+          Sauvegarder les modifications
+        </button>
+      </div>
     </form>
   </div>
 );
@@ -125,19 +152,46 @@ const OrdersContent = () => (
     <h2 className="text-xl font-semibold mb-6">Mes Commandes</h2>
     <div className="space-y-4">
       {[1, 2, 3].map((order) => (
-        <div key={order} className="border rounded-lg p-4">
-          <div className="flex justify-between items-start mb-4">
+        <div key={order} className="border rounded-lg p-6 hover:border-[#048B9A] transition-colors">
+          <div className="flex justify-between items-start mb-6">
             <div>
-              <p className="font-medium">Commande #{order}0234</p>
-              <p className="text-sm text-gray-500">Passée le 12 Mars 2024</p>
+              <div className="flex items-center gap-3 mb-2">
+                <h3 className="font-medium text-lg">Commande #{order}0234</h3>
+                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                  Livrée
+                </span>
+              </div>
+              <p className="text-gray-500">Passée le 12 Mars 2024</p>
             </div>
-            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-              Livrée
-            </span>
+            <button className="text-[#048B9A] hover:underline">
+              Voir les détails
+            </button>
           </div>
-          <div className="flex justify-between items-center">
-            <p className="text-gray-600">3 articles</p>
-            <p className="font-medium">150,000 GNF</p>
+
+          <div className="flex gap-4 mb-4">
+            {[1, 2].map((item) => (
+              <div key={item} className="relative w-16 h-16 rounded-lg overflow-hidden">
+                <Image
+                  src={`/product-${item}.jpg`}
+                  alt="Product"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            ))}
+            <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center text-gray-500">
+              +1
+            </div>
+          </div>
+
+          <div className="flex justify-between items-center pt-4 border-t">
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500">Total:</span>
+              <span className="font-medium text-lg">150,000 GNF</span>
+            </div>
+            <button className="px-4 py-2 border border-[#048B9A] text-[#048B9A] rounded-lg hover:bg-[#048B9A] hover:text-white transition-colors">
+              Suivre la livraison
+            </button>
           </div>
         </div>
       ))}
@@ -192,61 +246,140 @@ const AddressesContent = () => (
 );
 
 const SettingsContent = () => (
-  <div>
-    <h2 className="text-xl font-semibold mb-6">Paramètres</h2>
-    <div className="space-y-6">
-      <div>
-        <h3 className="font-medium mb-4">Changer le mot de passe</h3>
-        <form className="space-y-4">
+  <div className="space-y-8">
+    {/* Sécurité */}
+    <div className="p-6 border rounded-lg bg-gray-50">
+      <h3 className="text-lg font-semibold mb-6">Sécurité</h3>
+      <form className="space-y-5">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Mot de passe actuel
+          </label>
+          <input
+            type="password"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A] bg-white"
+          />
+        </div>
+        <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Mot de passe actuel
-            </label>
-            <input
-              type="password"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#048B9A] focus:border-[#048B9A]"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Nouveau mot de passe
             </label>
             <input
               type="password"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#048B9A] focus:border-[#048B9A]"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A] bg-white"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Confirmer le nouveau mot de passe
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Confirmer le mot de passe
             </label>
             <input
               type="password"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#048B9A] focus:border-[#048B9A]"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A] bg-white"
             />
           </div>
-          <button
-            type="submit"
-            className="bg-[#048B9A] text-white px-6 py-2 rounded-md hover:bg-[#037483] transition-colors"
-          >
-            Mettre à jour le mot de passe
-          </button>
-        </form>
-      </div>
+        </div>
+        <button
+          type="submit"
+          className="bg-[#048B9A] text-white px-6 py-2.5 rounded-lg hover:bg-[#037483] transition-colors"
+        >
+          Mettre à jour le mot de passe
+        </button>
+      </form>
+    </div>
 
-      <div>
-        <h3 className="font-medium mb-4">Préférences de notification</h3>
-        <div className="space-y-3">
-          <label className="flex items-center">
-            <input type="checkbox" className="form-checkbox text-[#048B9A]" />
-            <span className="ml-2">Recevoir des notifications par email</span>
+    {/* Notifications */}
+    <div className="p-6 border rounded-lg">
+      <h3 className="text-lg font-semibold mb-6">Préférences de notification</h3>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div>
+            <h4 className="font-medium mb-1">Notifications par email</h4>
+            <p className="text-sm text-gray-500">Recevoir des mises à jour sur vos commandes</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" className="sr-only peer" defaultChecked />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#048B9A]"></div>
           </label>
-          <label className="flex items-center">
-            <input type="checkbox" className="form-checkbox text-[#048B9A]" />
-            <span className="ml-2">Recevoir des notifications par SMS</span>
+        </div>
+
+        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div>
+            <h4 className="font-medium mb-1">Notifications SMS</h4>
+            <p className="text-sm text-gray-500">Recevoir des alertes de livraison par SMS</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" className="sr-only peer" />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#048B9A]"></div>
+          </label>
+        </div>
+
+        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div>
+            <h4 className="font-medium mb-1">Offres promotionnelles</h4>
+            <p className="text-sm text-gray-500">Recevoir des offres spéciales et réductions</p>
+          </div>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" className="sr-only peer" defaultChecked />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#048B9A]"></div>
           </label>
         </div>
       </div>
+    </div>
+
+    {/* Méthodes de paiement */}
+    <div className="p-6 border rounded-lg">
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-lg font-semibold">Méthodes de paiement</h3>
+        <button className="text-[#048B9A] hover:underline">+ Ajouter</button>
+      </div>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center gap-4">
+            <Image
+              src="/images/payments/master.webp"
+              alt="Mastercard"
+              width={40}
+              height={40}
+              className="rounded"
+            />
+            <div>
+              <h4 className="font-medium">Mastercard terminant par 4242</h4>
+              <p className="text-sm text-gray-500">Expire le 12/25</p>
+            </div>
+          </div>
+          <button className="text-red-500 hover:underline">Supprimer</button>
+        </div>
+
+        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div className="flex items-center gap-4">
+            <Image
+              src="/images/payments/om.webp"
+              alt="Orange Money"
+              width={40}
+              height={40}
+              className="rounded"
+            />
+            <div>
+              <h4 className="font-medium">Orange Money</h4>
+              <p className="text-sm text-gray-500">+224 621 XX XX XX</p>
+            </div>
+          </div>
+          <button className="text-red-500 hover:underline">Supprimer</button>
+        </div>
+      </div>
+    </div>
+
+    {/* Suppression du compte */}
+    <div className="p-6 border border-red-200 rounded-lg bg-red-50">
+      <h3 className="text-lg font-semibold text-red-600 mb-2">Supprimer le compte</h3>
+      <p className="text-sm text-red-600 mb-4">
+        Attention : La suppression de votre compte est irréversible. Toutes vos données seront définitivement effacées.
+      </p>
+      <button className="px-6 py-2.5 border border-red-500 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors">
+        Supprimer mon compte
+      </button>
     </div>
   </div>
 );

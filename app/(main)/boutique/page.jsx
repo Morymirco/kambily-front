@@ -2,7 +2,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import { FaBox, FaEye, FaFilter, FaShoppingCart, FaTimes, FaChevronLeft, FaChevronRight, FaFacebookF, FaTwitter, FaWhatsapp, FaLink } from 'react-icons/fa';
+import { FaBox, FaChevronLeft, FaChevronRight, FaEye, FaFacebookF, FaFilter, FaLink, FaSearch, FaShoppingCart, FaTimes, FaTwitter, FaWhatsapp } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Composant Toast modifié
 const Toast = ({ message, image, onView }) => (
@@ -96,6 +97,88 @@ const ProductCard = ({ id, image, gallery = [], title, price, inStock, category,
     // Implementation of handleShare function
   };
 
+  if (viewMode === 'list') {
+    return (
+      <div className="border rounded-xl overflow-hidden bg-white group">
+        <div className="flex">
+          {/* Colonne gauche : Image/Carousel avec largeur augmentée et coins arrondis */}
+          <div className="w-[320px] h-[280px] relative flex-shrink-0 p-3">
+            <div className="relative w-full h-full rounded-xl overflow-hidden">
+              {hasGallery ? (
+                <ImageCarousel images={allImages} title={title} />
+              ) : (
+                <Image
+                  src={image}
+                  alt={title}
+                  fill
+                  className="object-cover"
+                  sizes="320px"
+                />
+              )}
+              <div 
+                onClick={handleOpenModal}
+                className="absolute top-3 right-3 bg-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer hover:bg-gray-100 z-10"
+              >
+                <FaEye className="w-4 h-4 text-gray-600" />
+              </div>
+            </div>
+          </div>
+
+          {/* Colonne centrale : Infos produit avec titre plus grand */}
+          <div className="flex-1 p-6 flex flex-col justify-start min-w-0">
+            <Link href={`/boutique/${id}`}>
+              <h3 className="text-xl leading-6 font-semibold  text-gray-800 hover:text-[#048B9A] transition-colors mb-4 truncate">
+                {title}
+              </h3>
+            </Link>
+
+            <div className="mb-4">
+              <span className="text-xl font-bold text-[#048B9A]">{price}GNF</span>
+            </div>
+
+            {inStock ? (
+              <div className="flex items-center text-green-600">
+                <FaBox className="w-4 h-4 mr-1" />
+                <span className="text-sm">En stock</span>
+              </div>
+            ) : (
+              <div className="flex items-center text-red-500">
+                <FaBox className="w-4 h-4 mr-1" />
+                <span className="text-sm">Rupture de stock</span>
+              </div>
+            )}
+          </div>
+
+          {/* Colonne droite : Description et bouton */}
+          <div className="w-[300px] p-6 border-l flex flex-col justify-between flex-shrink-0 bg-gray-50">
+            <p className="text-sm text-gray-600 line-clamp-4">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            </p>
+
+            <button 
+              onClick={handleAddToCart}
+              disabled={isAddingToCart}
+              className="w-full bg-[#048B9A] text-white h-12 rounded-lg flex items-center justify-center gap-2 hover:bg-[#037383] transition-colors mt-4"
+            >
+              {isAddingToCart ? (
+                <>
+                  <span className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+                  <span className="ml-2">Ajout...</span>
+                </>
+              ) : (
+                <>
+                  <FaShoppingCart className="w-4 h-4" />
+                  Ajouter
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Le reste du composant reste EXACTEMENT identique
   return (
     <>
       <div className={`
@@ -399,6 +482,8 @@ const Boutique = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' ou 'list'
   const [priceRange, setPriceRange] = useState([0, 185000]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   // Données de produits étendues
   const allProducts = [
@@ -504,6 +589,99 @@ const Boutique = () => {
         <span>›</span>
         <span className="text-gray-900">Boutique</span>
       </div>
+
+      {/* Barre de recherche avec animation */}
+      <motion.div 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="mb-8"
+      >
+        <div className="relative max-w-2xl mx-auto">
+          <motion.div
+            animate={{
+              scale: isSearchFocused ? 1.02 : 1,
+              boxShadow: isSearchFocused 
+                ? '0 4px 20px rgba(0, 0, 0, 0.1)' 
+                : '0 2px 4px rgba(0, 0, 0, 0.05)'
+            }}
+            transition={{ duration: 0.2 }}
+            className="relative"
+          >
+            <input
+              type="text"
+              placeholder="Rechercher un produit..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setIsSearchFocused(false)}
+              className="w-full px-5 py-4 pr-12 border border-gray-300 rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A] bg-white transition-all duration-200"
+            />
+            <motion.button 
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#048B9A] transition-colors"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label="Rechercher"
+            >
+              <FaSearch className="w-5 h-5" />
+            </motion.button>
+          </motion.div>
+        </div>
+        
+        {/* Suggestions de recherche avec animation */}
+        <AnimatePresence>
+          {searchQuery && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mt-3 bg-white rounded-lg shadow-lg p-4 absolute z-10 w-full max-w-2xl left-1/2 -translate-x-1/2"
+            >
+              <h3 className="text-sm font-medium text-gray-600 mb-3">Suggestions :</h3>
+              <div className="space-y-2">
+                {['Robe d\'été', 'Robe de soirée', 'Robe longue'].filter(item => 
+                  item.toLowerCase().includes(searchQuery.toLowerCase())
+                ).map((suggestion, index) => (
+                  <motion.button
+                    key={suggestion}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    onClick={() => setSearchQuery(suggestion)}
+                    className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-gray-700"
+                  >
+                    {suggestion}
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Tags populaires avec animation */}
+        <motion.div 
+          className="mt-3 flex items-center justify-center gap-2 flex-wrap text-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          <span className="text-gray-500">Recherches populaires:</span>
+          {['Robe', 'T-shirt', 'Accessoires', 'Chaussures'].map((tag, index) => (
+            <motion.button
+              key={tag}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.3 + index * 0.1 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setSearchQuery(tag)}
+              className="px-3 py-1 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+            >
+              {tag}
+            </motion.button>
+          ))}
+        </motion.div>
+      </motion.div>
 
       {/* Barre d'outils de la boutique */}
       <div className="bg-gray-50 p-4 rounded-lg flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
