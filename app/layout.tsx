@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Krub } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar/NavBar";
-import Footer from './Components/Footer';
+import Footer from "./Components/Footer";
 
 const krub = Krub({
   variable: "--font-krub",
@@ -24,9 +24,9 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className={`${krub.variable} font-krub antialiased`}>
-        {/* <Navbar /> */}
+        <Navbar />
         {children}
-        {/* <Footer/> */}
+        <Footer/>
       </body>
     </html>
   );

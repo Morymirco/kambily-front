@@ -1,10 +1,15 @@
 'use client'
-import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  FaHome, FaBox, FaUsers, FaShoppingCart, 
-  FaChartBar, FaCog, FaBars, FaTimes 
+import { useState } from 'react';
+import {
+    FaBars,
+    FaBox,
+    FaChartBar, FaCog,
+    FaHome,
+    FaShoppingCart,
+    FaTimes,
+    FaUsers,FaTruck
 } from 'react-icons/fa';
 
 const AdminLayout = ({ children }) => {
@@ -15,6 +20,11 @@ const AdminLayout = ({ children }) => {
     { name: 'Dashboard', icon: FaHome, path: '/admin' },
     { name: 'Produits', icon: FaBox, path: '/admin/products' },
     { name: 'Utilisateurs', icon: FaUsers, path: '/admin/users' },
+    {
+        name: 'Assigner Livraisons',
+        icon: FaTruck,
+        path: '/admin/assign-deliveries'
+      },
     { name: 'Commandes', icon: FaShoppingCart, path: '/admin/orders' },
     { name: 'Statistiques', icon: FaChartBar, path: '/admin/stats' },
     { name: 'Paramètres', icon: FaCog, path: '/admin/settings' },
