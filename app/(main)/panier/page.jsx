@@ -1,23 +1,69 @@
 'use client'
-import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaTrash, FaMinus, FaPlus, FaTruck, FaShieldAlt, FaCreditCard } from 'react-icons/fa';
+import { FaTrash, FaMapMarkerAlt, FaEdit, FaMapPin, FaSearchLocation } from 'react-icons/fa';
+import { useState, useEffect, useCallback } from 'react';
+import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import toast, { Toaster } from 'react-hot-toast';
 
-const Cart = () => {
-  // État initial du panier (à remplacer par votre gestion d'état réelle)
-  const [cartItems, setCartItems] = useState([
+const containerStyle = {
+  width: '100%',
+  height: '300px'
+};
+
+// Position par défaut (Conakry)
+const defaultCenter = {
+  lat: 9.6412,
+  lng: -13.5784
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.5 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+};
+
+const Panier = () => {
+  const [promoCode, setPromoCode] = useState('');
+  const [shippingMethod, setShippingMethod] = useState('standard'); // standard ou express
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [position, setPosition] = useState(defaultCenter);
+  const [showMap, setShowMap] = useState(false);
+  const [address, setAddress] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [searchAddress, setSearchAddress] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Exemple de produits dans le panier
+  const cartItems = [
     {
       id: 1,
       name: "Ensemble De Pyjama",
       price: 65000,
       quantity: 1,
-      image: "/pyjama.png",
-      size: "M",
-      color: "Rose"
+      image: "/pyjama.png"
     },
-    // Ajoutez d'autres produits ici
-  ]);
+    {
+      id: 2,
+      name: "T-shirt Houston",
+      price: 85000,
+      quantity: 1,
+      image: "/houston_tshirt.png"
+    }
+  ];
+
+  // Exemple d'adresse par défaut
+  const defaultAddress = {
+    name: "John Doe",
+    address: "123 Rue Principale",
+    city: "Conakry",
+    phone: "+224 000 00 00"
+  };
 
   const updateQuantity = (id, change) => {
     setCartItems(cartItems.map(item => {
@@ -33,163 +79,503 @@ const Cart = () => {
     setCartItems(cartItems.filter(item => item.id !== id));
   };
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = 15000; // Frais de livraison
-  const total = subtotal + shipping;
+  const shippingCost = {
+    standard: 0,
+    express: 25000
+  };
+
+  const calculateTotal = () => {
+    const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const shipping = shippingCost[shippingMethod];
+    const discount = promoCode ? 15000 : 0;
+    return subtotal + shipping - discount;
+  };
+
+  // Fonction pour formater les coordonnées
+  const formatCoordinates = (lat, lng) => {
+    return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+  };
+
+  // Fonction pour rechercher une adresse
+  const searchByAddress = async () => {
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(searchAddress)}&key=VOTRE_CLE_API`
+      );
+      const data = await response.json();
+      if (data.results[0]) {
+        const { lat, lng } = data.results[0].geometry.location;
+        setPosition({ lat, lng });
+        setSelectedLocation({
+          coordinates: formatCoordinates(lat, lng),
+          address: data.results[0].formatted_address
+        });
+      }
+    } catch (error) {
+      console.error('Erreur de recherche:', error);
+    }
+  };
+
+  // Gestionnaire de clic sur la carte
+  const handleMapClick = async (e) => {
+    const lat = e.latLng.lat();
+    const lng = e.latLng.lng();
+    setPosition({ lat, lng });
+
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=VOTRE_CLE_API`
+      );
+      const data = await response.json();
+      setSelectedLocation({
+        coordinates: formatCoordinates(lat, lng),
+        address: data.results[0]?.formatted_address || 'Adresse non trouvée'
+      });
+    } catch (error) {
+      console.error('Erreur de géocodage:', error);
+      setSelectedLocation({
+        coordinates: formatCoordinates(lat, lng),
+        address: 'Erreur lors de la récupération de l\'adresse'
+      });
+    }
+  };
+
+  // Gestion de la sauvegarde
+  const handleSaveAddress = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      // Simulation d'une requête API
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Succès
+      toast.success('Adresse sauvegardée avec succès !', {
+        duration: 3000,
+        position: 'top-center',
+        style: {
+          background: '#048B9A',
+          color: '#fff',
+        },
+        icon: '✅',
+      });
+
+      setShowAddressForm(false);
+    } catch (error) {
+      // Erreur
+      toast.error('Erreur lors de la sauvegarde', {
+        duration: 3000,
+        position: 'top-center',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 md:px-16 py-12">
-      <h1 className="text-3xl font-bold mb-8">Mon Panier</h1>
+    <motion.div 
+      className="max-w-[1400px] mx-auto px-4 md:px-16 py-12"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <Toaster />
+      
+      <motion.h1 
+        className="text-3xl font-bold mb-8"
+        variants={itemVariants}
+      >
+        Panier
+      </motion.h1>
 
-      {cartItems.length === 0 ? (
-        <div className="text-center py-12">
-          <h2 className="text-xl font-semibold mb-4">Votre panier est vide</h2>
-          <p className="text-gray-600 mb-8">Découvrez nos produits et commencez vos achats</p>
-          <Link 
-            href="/boutique"
-            className="bg-[#048B9A] text-white px-6 py-3 rounded-md hover:bg-[#037483] transition-colors"
-          >
-            Continuer mes achats
-          </Link>
-        </div>
-      ) : (
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Liste des produits */}
-          <div className="flex-1">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="space-y-6">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="flex gap-4 pb-6 border-b last:border-0">
-                    {/* Image du produit */}
-                    <div className="relative w-24 h-24">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-cover rounded-lg"
-                      />
-                    </div>
-
-                    {/* Détails du produit */}
-                    <div className="flex-1">
-                      <div className="flex justify-between mb-2">
-                        <h3 className="font-medium">{item.name}</h3>
-                        <button 
-                          onClick={() => removeItem(item.id)}
-                          className="text-red-500 hover:text-red-600"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                      
-                      <div className="text-sm text-gray-600 mb-4">
-                        <p>Taille: {item.size}</p>
-                        <p>Couleur: {item.color}</p>
-                      </div>
-
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                          <button 
-                            onClick={() => updateQuantity(item.id, -1)}
-                            className="p-1 rounded-full hover:bg-gray-100"
-                          >
-                            <FaMinus />
-                          </button>
-                          <span className="w-8 text-center">{item.quantity}</span>
-                          <button 
-                            onClick={() => updateQuantity(item.id, 1)}
-                            className="p-1 rounded-full hover:bg-gray-100"
-                          >
-                            <FaPlus />
-                          </button>
-                        </div>
-                        <p className="font-semibold">{(item.price * item.quantity).toLocaleString()} GNF</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Avantages */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-              <div className="flex items-center gap-3 bg-white p-4 rounded-lg shadow-sm">
-                <FaTruck className="text-[#048B9A] text-2xl" />
-                <div>
-                  <h4 className="font-medium">Livraison Rapide</h4>
-                  <p className="text-sm text-gray-600">Sous 24-48h</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 bg-white p-4 rounded-lg shadow-sm">
-                <FaShieldAlt className="text-[#048B9A] text-2xl" />
-                <div>
-                  <h4 className="font-medium">Paiement Sécurisé</h4>
-                  <p className="text-sm text-gray-600">100% sécurisé</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 bg-white p-4 rounded-lg shadow-sm">
-                <FaCreditCard className="text-[#048B9A] text-2xl" />
-                <div>
-                  <h4 className="font-medium">Moyens de Paiement</h4>
-                  <p className="text-sm text-gray-600">Multiples options</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Résumé de la commande */}
-          <div className="w-full lg:w-96">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-xl font-semibold mb-6">Résumé de la commande</h2>
-              
-              <div className="space-y-4 mb-6">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Sous-total</span>
-                  <span>{subtotal.toLocaleString()} GNF</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Frais de livraison</span>
-                  <span>{shipping.toLocaleString()} GNF</span>
-                </div>
-                <div className="border-t pt-4">
-                  <div className="flex justify-between font-semibold">
-                    <span>Total</span>
-                    <span>{total.toLocaleString()} GNF</span>
-                  </div>
-                </div>
-              </div>
-
-              <button className="w-full bg-[#048B9A] text-white py-3 rounded-md hover:bg-[#037483] transition-colors mb-4">
-                Procéder au paiement
-              </button>
-
-              <Link 
-                href="/boutique"
-                className="block text-center text-[#048B9A] hover:underline"
+      <div className="grid md:grid-cols-3 gap-8">
+        {/* Liste des produits */}
+        <div className="md:col-span-2 space-y-6">
+          <AnimatePresence>
+            {cartItems.map((item) => (
+              <motion.div
+                key={item.id}
+                className="bg-white rounded-lg shadow-sm p-4 flex items-center gap-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: -100 }}
+                whileHover={{ scale: 1.01 }}
+                layout
               >
-                Continuer mes achats
-              </Link>
+                {/* Image du produit */}
+                <div className="relative w-24 h-24">
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    className="object-cover rounded-lg"
+                  />
+                </div>
+
+                {/* Détails du produit */}
+                <div className="flex-1">
+                  <h3 className="font-medium">{item.name}</h3>
+                  <p className="text-gray-500 text-sm">Taille: M</p>
+                  <p className="text-[#048B9A] font-medium">
+                    {item.price.toLocaleString()} GNF
+                  </p>
+                </div>
+
+                {/* Contrôles de quantité et suppression */}
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <motion.button 
+                      className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      -
+                    </motion.button>
+                    <span>{item.quantity}</span>
+                    <motion.button 
+                      className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      +
+                    </motion.button>
+                  </div>
+                  <motion.button 
+                    className="text-red-500"
+                    whileHover={{ scale: 1.2 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <FaTrash />
+                  </motion.button>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+
+          {/* Bouton Continuer les achats */}
+          <motion.div 
+            variants={itemVariants}
+            className="flex justify-between items-center"
+          >
+            <Link href="/boutique">
+              <motion.button
+                className="px-6 py-2 border-2 border-[#048B9A] text-[#048B9A] rounded-lg hover:bg-[#048B9A] hover:text-white transition-colors"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Continuer les achats
+              </motion.button>
+            </Link>
+          </motion.div>
+        </div>
+
+        {/* Résumé de la commande */}
+        <motion.div 
+          className="bg-white rounded-lg shadow-sm p-6 space-y-6"
+          variants={itemVariants}
+        >
+          {/* Code promo */}
+          <div className="space-y-3">
+            <h3 className="font-medium">Code promo</h3>
+            <div className="flex gap-2">
+              <motion.input
+                type="text"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value)}
+                placeholder="Entrez votre code"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A]"
+                whileFocus={{ scale: 1.01 }}
+              />
+              <motion.button
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Appliquer
+              </motion.button>
+            </div>
+          </div>
+
+          {/* Adresse d'expédition */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <h3 className="font-medium">Adresse de livraison</h3>
+              <motion.button
+                onClick={() => setShowAddressForm(!showAddressForm)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="text-[#048B9A] text-sm flex items-center gap-2"
+              >
+                <FaEdit />
+                {showAddressForm ? 'Fermer' : 'Modifier'}
+              </motion.button>
             </div>
 
-            {/* Code promo */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mt-4">
-              <h3 className="font-medium mb-4">Code promo</h3>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Entrez votre code"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-[#048B9A] focus:border-[#048B9A]"
-                />
-                <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
-                  Appliquer
-                </button>
+            <AnimatePresence mode="wait">
+              {!showAddressForm ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="bg-gray-50 p-4 rounded-lg"
+                >
+                  <div className="flex gap-3">
+                    <div className="text-[#048B9A]">
+                      <FaMapMarkerAlt />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="font-medium">{defaultAddress.name}</p>
+                      <p className="text-sm text-gray-600">{defaultAddress.address}</p>
+                      <p className="text-sm text-gray-600">{defaultAddress.city}</p>
+                      <p className="text-sm text-gray-600">{defaultAddress.phone}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.form
+                  onSubmit={handleSaveAddress}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="space-y-4"
+                >
+                  <div className="grid grid-cols-2 gap-4">
+                    <motion.input
+                      type="text"
+                      placeholder="Prénom"
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A]"
+                      whileFocus={{ scale: 1.01 }}
+                    />
+                    <motion.input
+                      type="text"
+                      placeholder="Nom"
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A]"
+                      whileFocus={{ scale: 1.01 }}
+                    />
+                  </div>
+
+                  {/* Carte et recherche d'adresse */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-medium text-gray-700">
+                        Sélectionnez votre adresse sur la carte
+                      </label>
+                      <motion.button
+                        type="button"
+                        onClick={() => setShowMap(!showMap)}
+                        className="text-[#048B9A] text-sm flex items-center gap-2"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <FaMapPin />
+                        {showMap ? 'Masquer la carte' : 'Afficher la carte'}
+                      </motion.button>
+                    </div>
+
+                    <AnimatePresence>
+                      {showMap && (
+                        <motion.div
+                          className="space-y-2"
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                        >
+                          {/* Barre de recherche d'adresse */}
+                          <div className="flex gap-2">
+                            <motion.input
+                              type="text"
+                              value={searchAddress}
+                              onChange={(e) => setSearchAddress(e.target.value)}
+                              placeholder="Rechercher une adresse..."
+                              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A]"
+                              whileFocus={{ scale: 1.01 }}
+                            />
+                            <motion.button
+                              onClick={searchByAddress}
+                              className="px-4 py-2 bg-[#048B9A] text-white rounded-lg"
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              <FaSearchLocation />
+                            </motion.button>
+                          </div>
+
+                          {/* Carte Google Maps */}
+                          <motion.div
+                            className="rounded-lg overflow-hidden"
+                            style={{ height: 300 }}
+                          >
+                            <LoadScript googleMapsApiKey="AIzaSyAlAKK7ldE7CcZMmGADZPb3GYOPI8C4bXs">
+                              <GoogleMap
+                                mapContainerStyle={containerStyle}
+                                center={position}
+                                zoom={15}
+                                onClick={handleMapClick}
+                              >
+                                <Marker position={position} />
+                              </GoogleMap>
+                            </LoadScript>
+                          </motion.div>
+
+                          {/* Affichage des coordonnées et de l'adresse sélectionnées */}
+                          {selectedLocation && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="bg-gray-50 p-3 rounded-lg space-y-1"
+                            >
+                              <div className="flex items-center gap-2 text-sm">
+                                <span className="font-medium">Coordonnées:</span>
+                                <span className="text-gray-600">{selectedLocation.coordinates}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm">
+                                <span className="font-medium">Adresse:</span>
+                                <span className="text-gray-600">{selectedLocation.address}</span>
+                              </div>
+                            </motion.div>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  <motion.input
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Adresse complète"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A]"
+                    whileFocus={{ scale: 1.01 }}
+                  />
+
+                  <div className="flex gap-2">
+                    <motion.button
+                      type="submit"
+                      className="flex-1 bg-[#048B9A] text-white py-2 rounded-lg hover:bg-[#037483] transition-colors flex items-center justify-center gap-2"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <motion.div
+                            className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          />
+                          <span>Sauvegarde en cours...</span>
+                        </>
+                      ) : (
+                        'Sauvegarder l\'adresse'
+                      )}
+                    </motion.button>
+                    <motion.button
+                      type="button"
+                      onClick={() => setShowAddressForm(false)}
+                      className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      disabled={isLoading}
+                    >
+                      Annuler
+                    </motion.button>
+                  </div>
+                </motion.form>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Expédition */}
+          <div className="space-y-3">
+            <h3 className="font-medium">Mode d'expédition</h3>
+            <div className="space-y-2">
+              <motion.div 
+                className={`p-3 border rounded-lg cursor-pointer ${
+                  shippingMethod === 'standard' ? 'border-[#048B9A]' : 'border-gray-200'
+                }`}
+                whileHover={{ scale: 1.01 }}
+                onClick={() => setShippingMethod('standard')}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-4 h-4 rounded-full border-2 ${
+                    shippingMethod === 'standard' 
+                      ? 'border-[#048B9A] bg-[#048B9A]' 
+                      : 'border-gray-300'
+                  }`} />
+                  <div className="flex-1">
+                    <p className="font-medium">Livraison standard</p>
+                    <p className="text-sm text-gray-500">3-5 jours ouvrables</p>
+                  </div>
+                  <span className="font-medium text-green-600">Gratuit</span>
+                </div>
+              </motion.div>
+
+              <motion.div 
+                className={`p-3 border rounded-lg cursor-pointer ${
+                  shippingMethod === 'express' ? 'border-[#048B9A]' : 'border-gray-200'
+                }`}
+                whileHover={{ scale: 1.01 }}
+                onClick={() => setShippingMethod('express')}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-4 h-4 rounded-full border-2 ${
+                    shippingMethod === 'express' 
+                      ? 'border-[#048B9A] bg-[#048B9A]' 
+                      : 'border-gray-300'
+                  }`} />
+                  <div className="flex-1">
+                    <p className="font-medium">Livraison express</p>
+                    <p className="text-sm text-gray-500">1-2 jours ouvrables</p>
+                  </div>
+                  <span className="font-medium">25,000 GNF</span>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Résumé */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Résumé de la commande</h2>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Sous-total</span>
+                <span>{cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0).toLocaleString()} GNF</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Expédition</span>
+                <span>{shippingMethod === 'express' ? '25,000' : 'Gratuit'}</span>
+              </div>
+              {promoCode && (
+                <motion.div 
+                  className="flex justify-between text-green-600"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <span>Réduction</span>
+                  <span>-15,000 GNF</span>
+                </motion.div>
+              )}
+              <div className="flex justify-between font-medium text-lg pt-4 border-t">
+                <span>Total</span>
+                <span>{calculateTotal().toLocaleString()} GNF</span>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+
+          {/* Bouton paiement */}
+          <Link href="/paiement" className="block">
+            <motion.button
+              className="w-full bg-[#048B9A] text-white py-3 rounded-lg hover:bg-[#037483] transition-colors"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Procéder au paiement
+            </motion.button>
+          </Link>
+        </motion.div>
+      </div>
+    </motion.div>
   );
 };
 
-export default Cart; 
+export default Panier; 

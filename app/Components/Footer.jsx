@@ -32,27 +32,77 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Colonne 3 - Service client */}
+          {/* Colonne 3 - Service client avec icônes */}
           <div>
             <h3 className="text-xl font-bold mb-6">Service client</h3>
-            <ul className="space-y-3 text-gray-400">
+            <ul className="space-y-4 text-gray-400">
               <li>
-                <Link href="/aide" className="hover:text-white transition-colors">
+                <Link href="/aide" className="flex items-center gap-3 hover:text-white transition-colors group">
+                  <svg 
+                    className="w-5 h-5 text-[#048B9A] group-hover:scale-110 transition-transform" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
                   Aide
                 </Link>
               </li>
               <li>
-                <Link href="/profile" className="hover:text-white transition-colors">
+                <Link href="/profile" className="flex items-center gap-3 hover:text-white transition-colors group">
+                  <svg 
+                    className="w-5 h-5 text-[#048B9A] group-hover:scale-110 transition-transform" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
                   Mon compte
                 </Link>
               </li>
               <li>
-                <Link href="/commandes" className="hover:text-white transition-colors">
+                <Link href="/commandes" className="flex items-center gap-3 hover:text-white transition-colors group">
+                  <svg 
+                    className="w-5 h-5 text-[#048B9A] group-hover:scale-110 transition-transform" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/>
+                    <path d="M16.5 9.4L7.55 4.24"/>
+                    <polyline points="3.29 7 12 12 20.71 7"/>
+                    <line x1="12" y1="22" x2="12" y2="12"/>
+                  </svg>
                   Suivre ma commande
                 </Link>
               </li>
               <li>
-                <Link href="/favoris" className="hover:text-white transition-colors">
+                <Link href="/favoris" className="flex items-center gap-3 hover:text-white transition-colors group">
+                  <svg 
+                    className="w-5 h-5 text-[#048B9A] group-hover:scale-110 transition-transform" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
                   Mes favoris
                 </Link>
               </li>

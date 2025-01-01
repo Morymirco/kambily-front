@@ -1,14 +1,25 @@
 "use client"
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { FaEnvelope, FaPhone, FaTrash } from 'react-icons/fa';
-import { useRouter } from 'next/navigation';
+import { FaEnvelope, FaGlobe, FaMoon, FaPhone, FaSun, FaTrash } from 'react-icons/fa';
 
 export default function Navbar() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showCartModal, setShowCartModal] = useState(false);
   const router = useRouter();
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [showLanguages, setShowLanguages] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  
+  const languages = [
+    { code: 'fr', name: 'Français', flag: '/flags/fr.png' },
+    { code: 'en', name: 'English', flag: '/flags/en.png' },
+    { code: 'ar', name: 'العربية', flag: '/flags/arabe.png' }
+  ];
+
+  const [currentLang, setCurrentLang] = useState(languages[0]);
 
   const categories = [
     {
@@ -34,6 +45,8 @@ export default function Navbar() {
       image: "/pyjama.png"
     }
   ];
+
+  const pathname = usePathname();
 
   useEffect(() => {
     // Définition des couleurs
@@ -102,6 +115,61 @@ export default function Navbar() {
               <span className="bg-white/10 px-2 py-1 rounded">00</span>
               <span>:</span>
               <span className="bg-white/10 px-2 py-1 rounded">00</span>
+
+              {/* Sélecteur de langue */}
+              <div className="relative ml-6">
+                <button
+                  onClick={() => setShowLanguages(!showLanguages)}
+                  className="flex items-center gap-2  hover:opacity-80 transition-opacity"
+                >
+                  <Image
+                    src={currentLang.flag}
+                    alt={currentLang.name}
+                    width={20}
+                    height={20}
+                    className="rounded-sm"
+                  />
+                  <FaGlobe className="w-4 h-4" />
+                </button>
+
+                {/* Dropdown des langues */}
+                {showLanguages && (
+                  <div className="absolute top-full right-0 mt-2 w-40 bg-white rounded-lg shadow-lg z-50 py-2">
+                    {languages.map((lang) => (
+                      <button
+                        key={lang.code}
+                        onClick={() => {
+                          setCurrentLang(lang);
+                          setShowLanguages(false);
+                        }}
+                        className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-50 transition-colors"
+                      >
+                        <Image
+                          src={lang.flag}
+                          alt={lang.name}
+                          width={20}
+                          height={20}
+                          className="rounded-sm"
+                        />
+                        <span className="text-gray-700">{lang.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Switch Mode Sombre/Clair */}
+              <button
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className="ml-4 text-white hover:opacity-80 transition-opacity"
+                aria-label={isDarkMode ? 'Activer le mode clair' : 'Activer le mode sombre'}
+              >
+                {isDarkMode ? (
+                  <FaSun className="w-5 h-5" />
+                ) : (
+                  <FaMoon className="w-5 h-5" />
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -157,10 +225,20 @@ export default function Navbar() {
                     className="flex items-center justify-between w-full text-gray-800 hover:text-[#048B9A]"
                     onClick={() => setIsDrawerOpen(true)} // Ajoutez un state pour gérer l'ouverture/fermeture
                   >
-                    <span>Nos catégories</span>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
+                    <div className="flex items-center gap-2">
+                      Nos catégories
+                      <svg 
+                        className="w-4 h-4 transition-transform duration-200" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
                   </button>
                 </div>
                 <Link href="/boutique" className="block text-gray-800 hover:text-[#048B9A]">
@@ -254,8 +332,20 @@ export default function Navbar() {
                 <Link href="/" className="hover:text-cyan-600">Accueil</Link>
                 <div className="relative group">
                   <Link href="/categories" className="hover:text-cyan-600 flex items-center">
-                    Nos catégories
-                    <span className="ml-1">▼</span>
+                  <div className="flex items-center gap-2">
+  Nos catégories
+  <svg 
+    className="w-4 h-4 transition-transform duration-200" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M19 9l-7 7-7-7" />
+  </svg>
+</div>
                   </Link>
                   
                   {/* Dropdown menu */}
@@ -268,7 +358,17 @@ export default function Navbar() {
                         >
                           <div className="flex items-center justify-between">
                             <span>{category.name}</span>
-                            <span className="text-xs">▶</span>
+                            <svg 
+    className="w-4 h-4 transition-transform duration-200" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M19 9l-7 7-7-7" />
+  </svg>
                           </div>
                         </Link>
                         
@@ -296,27 +396,85 @@ export default function Navbar() {
 
             {/* Icônes droites */}
             <div className="w-[200px] flex items-center justify-end space-x-6">
+              {/* Icône Recherche */}
               <Link 
                 href="/boutique"
                 className="hover:text-cyan-600 transition-colors"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg 
+                  viewBox="0 0 24 24" 
+                  className="w-6 h-6" 
+                  fill="none" 
+                  stroke="currentColor"
+                >
+                  <path 
+                    d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </Link>
-              <Link href="/profile" className="hover:text-cyan-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </Link>
+
+              {/* Icône Profil */}
+              <div className="relative group">
+                <Link 
+                  href="/profile" 
+                  className={`hover:text-cyan-600 flex flex-col items-center ${
+                    pathname === '/profile' ? 'text-[#048B9A]' : ''
+                  }`}
+                >
+                  {pathname === '/profile' && isLoggedIn ? (
+                    <>
+                      <span className="absolute -top-5 whitespace-nowrap text-xs font-medium">
+                        Hello, Kambily
+                      </span>
+                      <div className="w-7 h-7 rounded-full border-2 border-current flex items-center justify-center overflow-hidden">
+                        <Image
+                          src="/team/mory.jpg"
+                          alt="Profile"
+                          width={28}
+                          height={28}
+                          className="object-cover"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="w-7 h-7 rounded-full border-2 border-current flex items-center justify-center">
+                      <svg 
+                        viewBox="0 0 24 24" 
+                        className="w-4 h-4" 
+                        fill="none" 
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                    </div>
+                  )}
+                </Link>
+              </div>
+
+              {/* Icône Panier */}
               <div 
                 className="relative"
                 onMouseEnter={() => setShowCartModal(true)}
                 onMouseLeave={() => setShowCartModal(false)}
               >
                 <Link href="/panier" className="relative hover:text-cyan-600">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <svg 
+                    viewBox="0 0 24 24" 
+                    className="w-6 h-6" 
+                    fill="none" 
+                    stroke="currentColor"
+                  >
+                    <path 
+                      d="M4.78571 5H18.2251C19.5903 5 20.5542 6.33739 20.1225 7.63246L18.4558 12.6325C18.1836 13.4491 17.4193 14 16.5585 14H6.07142M4.78571 5L4.74531 4.71716C4.60455 3.73186 3.76071 3 2.76541 3H2M4.78571 5L6.07142 14M6.07142 14L6.25469 15.2828C6.39545 16.2681 7.23929 17 8.23459 17H17M17 17C15.8954 17 15 17.8954 15 19C15 20.1046 15.8954 21 17 21C18.1046 21 19 20.1046 19 19C19 17.8954 18.1046 17 17 17ZM11 19C11 20.1046 10.1046 21 9 21C7.89543 21 7 20.1046 7 19C7 17.8954 7.89543 17 9 17C10.1046 17 11 17.8954 11 19Z" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    />
                   </svg>
                   <span className="absolute -top-2 -right-2 bg-cyan-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
                     {cartItems.length}

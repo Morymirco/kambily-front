@@ -1,34 +1,33 @@
-import type { Metadata } from "next";
-import { Krub } from "next/font/google";
-import "./globals.css";
-import Navbar from "./components/Navbar/NavBar";
-import Footer from "./Components/Footer";
-import ScrollToTop from "./components/ScrollToTop";
+import { Inter } from 'next/font/google';
+import Footer from './components/Footer';
+import Navbar from './components/Navbar/Navbar';
+import CookieConsent from './components/Popup/CookieConsent';
+import PromoPopup from './components/Popup/PromoPopup';
+import ScrollToTop from './Components/ScrollToTop'
 
-const krub = Krub({
-  variable: "--font-krub",
-  subsets: ["latin"],
-  weight: ['200', '300', '400', '500', '600', '700'],
-  display: 'swap',
-});
+import './globals.css';
 
-export const metadata: Metadata = {
-  title: "Mon Site E-commerce",
-  description: "Description de mon site e-commerce",
-};
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+const inter = Inter({ subsets: ['latin'] });
+
+interface RootLayoutProps {
   children: React.ReactNode;
-}>) {
+}
+
+export default async function RootLayout({ children }: RootLayoutProps) {
+ 
+
   return (
     <html lang="fr">
-      <body className={`${krub.variable} font-krub antialiased`}>
-        <Navbar />
-        {children}
-        <Footer/>
-        <ScrollToTop />
+      {/* <PromoPopup /> */}
+      <body className={inter.className}>
+      <Navbar />
+      {children}
+      
+      
+      <Footer />
+      <CookieConsent />
+      <ScrollToTop/>
       </body>
     </html>
   );

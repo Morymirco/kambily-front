@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import {
-  FaBox,
   FaChevronLeft, FaChevronRight,
   FaEye,
   FaFacebookF,
@@ -209,7 +208,21 @@ const Produit = ({ image, gallery = [], title, price, inStock, category }) => {
           {/* Indicateur de stock */}
           {inStock && (
             <div className="flex items-center text-[#048B9A] mb-3">
-              <FaBox className="w-4 h-4 mr-1" />
+              <svg 
+                className="w-4 h-4 mr-1" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 8l-2-2H5L3 8h18z" />
+                <path d="M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8" />
+                <path d="M12 12v6" />
+                <path d="M12 12l4-4" />
+                <path d="M12 12l-4-4" />
+              </svg>
               <span className="text-sm">In Stock</span>
             </div>
           )}
@@ -297,7 +310,21 @@ const Produit = ({ image, gallery = [], title, price, inStock, category }) => {
                 {/* Stock */}
                 {inStock && (
                   <div className="flex items-center text-green-600">
-                    <FaBox className="w-4 h-4 mr-2" />
+                    <svg 
+                      className="w-4 h-4 mr-2" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 8l-2-2H5L3 8h18z" />
+                      <path d="M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8" />
+                      <path d="M12 12v6" />
+                      <path d="M12 12l4-4" />
+                      <path d="M12 12l-4-4" />
+                    </svg>
                     <span>En stock</span>
                   </div>
                 )}

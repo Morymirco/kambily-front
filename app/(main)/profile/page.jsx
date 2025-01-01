@@ -1,10 +1,52 @@
 'use client'
-import { useState } from 'react';
 import Image from 'next/image';
-import { FaUser, FaShoppingBag, FaHeart, FaAddressCard, FaCog, FaSignOutAlt, FaCamera } from 'react-icons/fa';
+import { useState } from 'react';
+import { FaAddressCard, FaCamera, FaCog, FaHeart, FaShoppingBag, FaSignOutAlt, FaUser } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('profile');
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100
+      }
+    }
+  };
+
+  const contentVariants = {
+    hidden: { opacity: 0, x: 20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100
+      }
+    },
+    exit: {
+      opacity: 0,
+      x: -20,
+      transition: {
+        duration: 0.2
+      }
+    }
+  };
 
   const tabs = [
     { id: 'profile', label: 'Mon Profil', icon: <FaUser /> },
@@ -32,15 +74,28 @@ const Profile = () => {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 md:px-16 py-12">
-      <h1 className="text-3xl font-bold mb-8">Mon Compte</h1>
+    <motion.div 
+      className="max-w-[1400px] mx-auto px-4 md:px-16 py-12"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <motion.h1 
+        className="text-3xl font-bold mb-8"
+        variants={itemVariants}
+      >
+        Mon Compte
+      </motion.h1>
       
       <div className="flex flex-col md:flex-row gap-8">
-        {/* Sidebar */}
-        <div className="w-full md:w-64 bg-white rounded-lg shadow-sm p-4">
+        {/* Sidebar avec animation */}
+        <motion.div 
+          className="w-full md:w-64 bg-white rounded-lg shadow-sm p-4"
+          variants={containerVariants}
+        >
           <nav className="space-y-2">
             {tabs.map((tab) => (
-              <button
+              <motion.button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
@@ -48,24 +103,36 @@ const Profile = () => {
                     ? 'bg-[#048B9A] text-white'
                     : 'hover:bg-gray-50'
                 }`}
+                variants={itemVariants}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
                 {tab.icon}
                 <span>{tab.label}</span>
-              </button>
+              </motion.button>
             ))}
             <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50">
               <FaSignOutAlt />
               <span>Déconnexion</span>
             </button>
           </nav>
-        </div>
+        </motion.div>
 
-        {/* Content */}
-        <div className="flex-1 bg-white rounded-lg shadow-sm p-6">
-          {renderContent()}
-        </div>
+        {/* Contenu avec animation */}
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={activeTab}
+            className="flex-1 bg-white rounded-lg shadow-sm p-6"
+            variants={contentVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            {renderContent()}
+          </motion.div>
+        </AnimatePresence>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -40,6 +40,45 @@ export default function Hero() {
         loop={true}
         className="w-full h-[650px] rounded-2xl overflow-hidden relative group"
       >
+        <style>
+          {`
+            .swiper-button-prev,
+            .swiper-button-next {
+              width: 50px !important;
+              height: 50px !important;
+              background: rgba(255, 255, 255, 0.9) !important;
+              border-radius: 50% !important;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+              transition: all 0.3s ease !important;
+            }
+
+            .swiper-button-prev {
+              left: 20px !important;
+            }
+
+            .swiper-button-next {
+              right: 20px !important;
+            }
+
+            .swiper-button-prev:hover,
+            .swiper-button-next:hover {
+              background: #048B9A !important;
+              transform: scale(1.1);
+            }
+
+            .swiper-button-prev::after,
+            .swiper-button-next::after {
+              font-size: 18px !important;
+              font-weight: bold !important;
+              color: #333 !important;
+            }
+
+            .swiper-button-prev:hover::after,
+            .swiper-button-next:hover::after {
+              color: white !important;
+            }
+          `}
+        </style>
         <div className="swiper-button-prev !w-[60px] !h-[60px] !bg-white !rounded-r-full !left-0 !after:text-black !after:text-2xl !after:font-black opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         <div className="swiper-button-next !w-[60px] !h-[60px] !bg-white !rounded-l-full !right-0 !after:text-black !after:text-2xl !after:font-black opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 

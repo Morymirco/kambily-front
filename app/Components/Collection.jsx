@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaBox } from 'react-icons/fa';
 
 // Composant pour les cartes de produits
 const ProductCard = ({ image, title, price, inStock }) => {
@@ -19,7 +18,21 @@ const ProductCard = ({ image, title, price, inStock }) => {
         <p className="text-lg font-bold text-gray-900 mb-2">{price}GNF</p>
         {inStock && (
           <div className="flex items-center text-[#048B9A]">
-            <FaBox className="w-4 h-4 mr-1" />
+            <svg 
+              className="w-4 h-4 mr-1" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 8l-2-2H5L3 8h18z" />
+              <path d="M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8" />
+              <path d="M12 12v6" />
+              <path d="M12 12l4-4" />
+              <path d="M12 12l-4-4" />
+            </svg>
             <span className="text-sm">In Stock</span>
           </div>
         )}
@@ -119,7 +132,7 @@ const Collection = () => {
 
   return (
     <div className="max-w-[1400px] mx-auto px-16 my-8">
-      {/* Section Bijouterie avec hauteur réduite */}
+      {/* Section Bijouterie */}
       <div className="flex flex-col md:flex-row gap-8 mb-8">
         {/* Produits bijouterie - 50% */}
         <div className="w-full md:w-1/2">
@@ -133,40 +146,39 @@ const Collection = () => {
           </div>
         </div>
 
-        {/* Banner Bijouterie - 50% avec hauteur réduite */}
-        <div className="w-full md:w-1/2 relative h-[400px] rounded-2xl overflow-hidden">
+        {/* Banner Bijouterie */}
+        <div className="w-full md:w-1/2 relative h-[400px] rounded-2xl overflow-hidden group">
           <div className="absolute inset-0">
             <Image
               src="/chaine.jpg"
               alt="Collection de bijoux"
               fill
-              className="object-cover"
+              className="object-cover transition-transform duration-700 group-hover:scale-110"
               priority
             />
-            {/* Overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent transition-opacity duration-300 group-hover:opacity-70" />
           </div>
 
-          {/* Contenu de la bannière avec padding ajusté */}
-          <div className="relative h-full p-6 flex flex-col justify-between z-10">
-            <span className="bg-[#048B9A] text-white px-4 py-1 rounded-full text-sm uppercase inline-block w-fit">
+          {/* Contenu aligné à gauche */}
+          <div className="relative h-full p-6 flex flex-col gap-2 z-10">
+            <span className="bg-[#048B9A] text-white px-4 py-1 mt-4 rounded-full text-sm uppercase w-fit">
               Bijouterie
             </span>
 
-            <div className="text-white">
-              <h2 className="text-2xl font-bold mb-3">
+            <div className="text-white transform transition-transform duration-300 group-hover:translate-y-[-8px] max-w-[80%]">
+              <h2 className="text-2xl font-bold mb-3 text-left">
                 Éblouissez-vous avec notre collection de bijoux
               </h2>
-              <p className="text-gray-200 mb-4">
+              <p className="text-gray-200 mb-4 text-left">
                 Parcourez notre collection pour trouver des bijoux qui parlent de votre style unique.
               </p>
               <Link 
                 href="/explorer"
-                className="text-white flex items-center gap-2 hover:gap-3 transition-all duration-300"
+                className="text-white flex items-center gap-2 hover:gap-3 transition-all duration-300 w-fit"
               >
                 Explorer
                 <svg 
-                  className="w-4 h-4" 
+                  className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" 
                   fill="none" 
                   stroke="currentColor" 
                   viewBox="0 0 24 24"
@@ -187,33 +199,34 @@ const Collection = () => {
       {/* Section Électronique */}
       <div className="mt-12">
         {/* Bannière électronique */}
-        <div className="relative h-[400px] rounded-2xl overflow-hidden bg-black mb-8">
+        <div className="relative h-[271.25px] rounded-2xl overflow-hidden bg-black mb-8 group">
           <div className="absolute inset-0">
             <Image
               src="/iphone.jpg"
               alt="Électronique"
               fill
-              className="object-cover object-right"
+              className="object-cover object-right transition-transform duration-700 group-hover:scale-110"
             />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent transition-opacity duration-300 group-hover:opacity-75" />
           </div>
-          <div className="relative h-full p-8 flex flex-col justify-between z-10 max-w-lg">
-            <span className="bg-[#048B9A] text-white px-4 py-1 rounded-full text-sm uppercase inline-block w-fit">
+          <div className="relative h-full p-8 flex flex-col gap-3 z-10 max-w-lg transform transition-transform duration-300 group-hover:translate-y-[-8px]">
+            <span className="bg-[#048B9A] text-white px-4 py-1 mt-4 rounded-full text-sm uppercase w-fit">
               Électronique
             </span>
-            <div>
-              <h2 className="text-4xl font-bold text-white mb-4">
+            <div className="text-left max-w-[80%]">
+              <h2 className="text-3xl font-bold text-white mb-3">
                 Vivez la Révolution High-Tech
               </h2>
-              <p className="text-gray-200 mb-6">
+              <p className="text-gray-200 mb-4 text-sm">
                 Découvrez notre sélection d'électronique de pointe !
               </p>
               <Link 
                 href="/explorer"
-                className="text-white flex items-center gap-2 hover:gap-3 transition-all duration-300"
+                className="text-white flex items-center gap-2 hover:gap-3 transition-all duration-300 w-fit"
               >
                 Explorer
                 <svg 
-                  className="w-4 h-4" 
+                  className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" 
                   fill="none" 
                   stroke="currentColor" 
                   viewBox="0 0 24 24"
@@ -263,7 +276,21 @@ const Collection = () => {
                 )}
                 {product.inStock && (
                   <div className="flex items-center text-[#048B9A]">
-                    <FaBox className="w-4 h-4 mr-1" />
+                    <svg 
+                      className="w-4 h-4 mr-1" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 8l-2-2H5L3 8h18z" />
+                      <path d="M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8" />
+                      <path d="M12 12v6" />
+                      <path d="M12 12l4-4" />
+                      <path d="M12 12l-4-4" />
+                    </svg>
                     <span className="text-sm">In Stock</span>
                   </div>
                 )}

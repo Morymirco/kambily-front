@@ -1,8 +1,8 @@
 'use client'
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
-import { FaBox, FaChevronLeft, FaChevronRight, FaEye, FaFacebookF, FaFilter, FaLink, FaSearch, FaShoppingCart, FaTimes, FaTwitter, FaWhatsapp } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { FaChevronLeft, FaChevronRight, FaEye, FaFacebookF, FaFilter, FaLink, FaSearch, FaShoppingCart, FaTimes, FaTwitter, FaWhatsapp } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Composant Toast modifié
@@ -138,12 +138,38 @@ const ProductCard = ({ id, image, gallery = [], title, price, inStock, category,
 
             {inStock ? (
               <div className="flex items-center text-green-600">
-                <FaBox className="w-4 h-4 mr-1" />
+                <svg 
+                  className="w-4 h-4 mr-1" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 8l-2-2H5L3 8h18z" />
+                  <path d="M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8" />
+                  <path d="M12 12v6" />
+                  <path d="M12 12l4-4" />
+                  <path d="M12 12l-4-4" />
+                </svg>
                 <span className="text-sm">En stock</span>
               </div>
             ) : (
               <div className="flex items-center text-red-500">
-                <FaBox className="w-4 h-4 mr-1" />
+                <svg 
+                  className="w-4 h-4 mr-1" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 8l-2-2H5L3 8h18z" />
+                  <path d="M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8" opacity="0.5" />
+                  <path d="M4 4l16 16" strokeWidth="1.5" />
+                </svg>
                 <span className="text-sm">Rupture de stock</span>
               </div>
             )}
@@ -239,12 +265,38 @@ const ProductCard = ({ id, image, gallery = [], title, price, inStock, category,
 
             {inStock ? (
               <div className="flex items-center text-green-600 mb-3">
-                <FaBox className="w-4 h-4 mr-1" />
+                <svg 
+                  className="w-4 h-4 mr-1" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 8l-2-2H5L3 8h18z" />
+                  <path d="M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8" />
+                  <path d="M12 12v6" />
+                  <path d="M12 12l4-4" />
+                  <path d="M12 12l-4-4" />
+                </svg>
                 <span className="text-sm">En stock</span>
               </div>
             ) : (
               <div className="flex items-center text-red-500 mb-3">
-                <FaBox className="w-4 h-4 mr-1" />
+                <svg 
+                  className="w-4 h-4 mr-1" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 8l-2-2H5L3 8h18z" />
+                  <path d="M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8" opacity="0.5" />
+                  <path d="M4 4l16 16" strokeWidth="1.5" />
+                </svg>
                 <span className="text-sm">Rupture de stock</span>
               </div>
             )}
@@ -360,7 +412,21 @@ const ProductCard = ({ id, image, gallery = [], title, price, inStock, category,
                 {/* Stock */}
                 {inStock && (
                   <div className="flex items-center text-green-600">
-                    <FaBox className="w-4 h-4 mr-2" />
+                    <svg 
+                      className="w-4 h-4 mr-1" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 8l-2-2H5L3 8h18z" />
+                      <path d="M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8" />
+                      <path d="M12 12v6" />
+                      <path d="M12 12l4-4" />
+                      <path d="M12 12l-4-4" />
+                    </svg>
                     <span>En stock</span>
                   </div>
                 )}
@@ -484,6 +550,8 @@ const Boutique = () => {
   const [priceRange, setPriceRange] = useState([0, 185000]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [isFiltering, setIsFiltering] = useState(false);
 
   // Données de produits étendues
   const allProducts = [
@@ -580,6 +648,46 @@ const Boutique = () => {
     { name: 'Vêtements pour femmes', count: 3 },
     { name: 'Hauts', count: 1 },
   ];
+
+  // Filtrer les produits quand la recherche change
+  useEffect(() => {
+    setIsFiltering(true);
+    const timeoutId = setTimeout(() => {
+      const filtered = allProducts.filter(product => 
+        product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredProducts(filtered);
+      setIsFiltering(false);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  // Animation variants pour les produits
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const productVariants = {
+    hidden: { 
+      opacity: 0,
+      y: 20
+    },
+    show: { 
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.3
+      }
+    }
+  };
 
   return (
     <div className="max-w-[1400px] mx-auto px-4 md:px-16 my-8">
@@ -870,21 +978,93 @@ const Boutique = () => {
         </div>
       )}
 
-      {/* Grille de produits avec mode de vue dynamique */}
-      <div className={`
-        grid gap-6
-        ${viewMode === 'grid' 
-          ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
-          : 'grid-cols-1'
-        }
-      `}>
-        {allProducts.map(product => (
-          <ProductCard
-            key={product.id}
-            {...product}
-            viewMode={viewMode}
-          />
-        ))}
+      {/* Résultats de la recherche */}
+      <div className="mt-8">
+        {/* Message de recherche en cours */}
+        <AnimatePresence>
+          {isFiltering && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-center text-gray-500 py-4"
+            >
+              Recherche en cours...
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Nombre de résultats */}
+        <AnimatePresence>
+          {!isFiltering && searchQuery && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-6 text-gray-600"
+            >
+              {filteredProducts.length} résultat(s) trouvé(s) pour "{searchQuery}"
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Grille de produits avec animation */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className={`grid gap-6 ${
+            viewMode === 'grid' 
+              ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
+              : 'grid-cols-1'
+          }`}
+        >
+          <AnimatePresence>
+            {(searchQuery ? filteredProducts : allProducts).map(product => (
+              <motion.div
+                key={product.id}
+                variants={productVariants}
+                layout
+                initial="hidden"
+                animate="show"
+                exit={{ opacity: 0, scale: 0.9 }}
+              >
+                <ProductCard
+                  {...product}
+                  viewMode={viewMode}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Message aucun résultat */}
+        <AnimatePresence>
+          {!isFiltering && searchQuery && filteredProducts.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="text-center py-12"
+            >
+              <div className="text-gray-400 mb-4">
+                <FaSearch className="w-12 h-12 mx-auto mb-4" />
+                <h3 className="text-xl font-medium mb-2">
+                  Aucun résultat trouvé
+                </h3>
+                <p className="text-gray-500">
+                  Essayez avec d'autres mots-clés ou parcourez nos catégories
+                </p>
+              </div>
+              <button
+                onClick={() => setSearchQuery('')}
+                className="mt-4 text-[#048B9A] hover:underline"
+              >
+                Voir tous les produits
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Pagination */}
