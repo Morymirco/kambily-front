@@ -24,9 +24,9 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className={`${krub.variable} font-krub antialiased`}>
-        <Navbar />
+        {/* <Navbar /> */}
         {children}
-        <Footer/>
+        {/* <Footer/> */}
       </body>
     </html>
   );
