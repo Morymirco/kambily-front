@@ -2,8 +2,7 @@ import { Inter } from 'next/font/google';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar/Navbar';
 import CookieConsent from './components/Popup/CookieConsent';
-import PromoPopup from './components/Popup/PromoPopup';
-import ScrollToTop from './Components/ScrollToTop'
+import ScrollToTop from './Components/ScrollToTop';
 
 import './globals.css';
 
@@ -21,11 +20,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
     <html lang="fr">
       {/* <PromoPopup /> */}
       <body className={inter.className}>
-      <Navbar />
+      {/* <Navbar /> */}
       {children}
       
       
-      <Footer />
+      {/* <Footer /> */}
       <CookieConsent />
       <ScrollToTop/>
       </body>

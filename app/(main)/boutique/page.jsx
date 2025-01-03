@@ -1,9 +1,9 @@
 'use client'
+import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FaChevronLeft, FaChevronRight, FaEye, FaFacebookF, FaFilter, FaLink, FaSearch, FaShoppingCart, FaTimes, FaTwitter, FaWhatsapp } from 'react-icons/fa';
-import { motion, AnimatePresence } from 'framer-motion';
 
 // Composant Toast modifié
 const Toast = ({ message, image, onView }) => (
@@ -37,12 +37,15 @@ const Toast = ({ message, image, onView }) => (
         </p>
 
         {/* Bouton Voir */}
+        <Link href='/panier'>
         <button
           onClick={onView}
           className="mt-2 text-[#048B9A] text-sm font-medium hover:text-[#037383] transition-colors"
         >
           Voir le panier
         </button>
+        
+        </Link>
       </div>
     </div>
   </div>

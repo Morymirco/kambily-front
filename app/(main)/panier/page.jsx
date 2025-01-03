@@ -1,11 +1,11 @@
 'use client'
-import { motion, AnimatePresence } from 'framer-motion';
+import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaTrash, FaMapMarkerAlt, FaEdit, FaMapPin, FaSearchLocation } from 'react-icons/fa';
-import { useState, useEffect, useCallback } from 'react';
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
+import { FaEdit, FaMapMarkerAlt, FaMapPin, FaSearchLocation, FaTrash } from 'react-icons/fa';
 
 const containerStyle = {
   width: '100%',
@@ -38,6 +38,9 @@ const Panier = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [searchAddress, setSearchAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [quantities, setQuantities] = useState({
+    1: 1, // id du produit: quantité
+  });
   
   // Exemple de produits dans le panier
   const cartItems = [
@@ -172,6 +175,22 @@ const Panier = () => {
     }
   };
 
+  // Fonction pour augmenter la quantité
+  const incrementQuantity = (productId) => {
+    setQuantities(prev => ({
+      ...prev,
+      [productId]: (prev[productId] || 1) + 1
+    }));
+  };
+
+  // Fonction pour diminuer la quantité
+  const decrementQuantity = (productId) => {
+    setQuantities(prev => ({
+      ...prev,
+      [productId]: Math.max(1, (prev[productId] || 1) - 1)
+    }));
+  };
+
   return (
     <motion.div 
       className="max-w-[1400px] mx-auto px-4 md:px-16 py-12"
@@ -224,21 +243,21 @@ const Panier = () => {
                 {/* Contrôles de quantité et suppression */}
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
-                    <motion.button 
-                      className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
+                    <button
+                      onClick={() => decrementQuantity(item.id)}
+                      className="w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-gray-50"
                     >
                       -
-                    </motion.button>
-                    <span>{item.quantity}</span>
-                    <motion.button 
-                      className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
+                    </button>
+                    <span className="w-12 text-center">
+                      {quantities[item.id] || 1}
+                    </span>
+                    <button
+                      onClick={() => incrementQuantity(item.id)}
+                      className="w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-gray-50"
                     >
                       +
-                    </motion.button>
+                    </button>
                   </div>
                   <motion.button 
                     className="text-red-500"

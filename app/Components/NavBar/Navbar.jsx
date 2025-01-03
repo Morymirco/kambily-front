@@ -1,4 +1,4 @@
-"use client"
+'use client'
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -331,7 +331,7 @@ export default function Navbar() {
               <div className="flex items-center space-x-12">
                 <Link href="/" className="hover:text-cyan-600">Accueil</Link>
                 <div className="relative group">
-                  <Link href="/categories" className="hover:text-cyan-600 flex items-center">
+                  <Link href="/boutique" className="hover:text-cyan-600 flex items-center">
                   <div className="flex items-center gap-2">
   Nos catégories
   <svg 
@@ -483,73 +483,114 @@ export default function Navbar() {
 
                 {/* Modal du panier */}
                 {showCartModal && (
-                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg z-50 border">
-                    <div className="p-4">
-                      <h3 className="font-semibold mb-4">Mon Panier ({cartItems.length})</h3>
-                      
-                      {cartItems.length === 0 ? (
-                        <p className="text-gray-500 text-center py-4">Votre panier est vide</p>
-                      ) : (
-                        <>
-                          {/* Liste des produits */}
-                          <div className="space-y-3 mb-4">
-                            {cartItems.map((item) => (
-                              <div key={item.id} className="flex gap-3 items-start">
-                                <div className="relative w-16 h-16">
-                                  <Image
-                                    src={item.image}
-                                    alt={item.name}
-                                    fill
-                                    className="object-cover rounded"
-                                  />
-                                </div>
-                                <div className="flex-1">
-                                  <div className="flex justify-between items-start">
-                                    <h4 className="text-sm font-medium">{item.name}</h4>
-                                    <button 
-                                      onClick={() => removeFromCart(item.id)}
-                                      className="text-gray-400 hover:text-red-500 transition-colors p-1"
-                                      title="Retirer du panier"
-                                    >
-                                      <FaTrash size={14} />
-                                    </button>
-                                  </div>
-                                  <p className="text-sm text-gray-500">
-                                    Quantité: {item.quantity}
-                                  </p>
-                                  <p className="text-sm font-medium text-[#048B9A]">
-                                    {item.price.toLocaleString()} GNF
-                                  </p>
-                                </div>
-                              </div>
-                            ))}
+                  <div 
+                    className="absolute right-0 top-full mt-2 w-[400px] bg-white rounded-lg shadow-xl z-50 border border-gray-100"
+                    onMouseEnter={() => setShowCartModal(true)}
+                    onMouseLeave={() => setShowCartModal(false)}
+                  >
+                    {/* En-tête */}
+                    <div className="p-4 border-b">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-medium">Mon Panier</h3>
+                        <span className="text-sm text-gray-500">({cartItems.length} articles)</span>
+                      </div>
+                    </div>
+
+                    {/* Liste des produits */}
+                    <div className="max-h-[300px] overflow-y-auto p-4 space-y-4">
+                      {cartItems.map((item) => (
+                        <div key={item.id} className="flex gap-4 items-start group">
+                          {/* Image */}
+                          <div className="relative w-16 h-16 flex-shrink-0">
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              fill
+                              className="object-cover rounded-md"
+                            />
                           </div>
 
-                          {/* Total et boutons */}
-                          <div className="border-t pt-3">
-                            <div className="flex justify-between mb-4">
-                              <span className="font-medium">Total:</span>
-                              <span className="font-medium">
-                                {cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toLocaleString()} GNF
-                              </span>
+                          {/* Détails */}
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-medium truncate group-hover:text-[#048B9A] transition-colors">
+                              {item.name}
+                            </h4>
+                            <p className="text-sm text-gray-500">Quantité: {item.quantity}</p>
+                            <p className="text-sm font-medium text-[#048B9A]">
+                              {item.price.toLocaleString()} GNF
+                            </p>
+                          </div>
+
+                          {/* Bouton supprimer */}
+                          <button 
+                            onClick={() => removeFromCart(item.id)}
+                            className="p-1 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                          >
+                            <FaTrash size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Barre de progression pour la livraison gratuite */}
+                    <div className="mt-4 px-2">
+                      {(() => {
+                        const minForFreeShipping = 100000; // Montant minimum pour la livraison gratuite
+                        const currentTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                        const remaining = Math.max(0, minForFreeShipping - currentTotal);
+                        const progress = Math.min(100, (currentTotal / minForFreeShipping) * 100);
+
+                        return (
+                          <div className="space-y-2">
+                            {remaining > 0 ? (
+                              <p className="text-xs text-gray-600 text-center">
+                                Ajoutez <span className="text-[#048B9A] font-medium">
+                                  {remaining.toLocaleString()} GNF
+                                </span> pour bénéficier de la livraison gratuite !
+                              </p>
+                            ) : (
+                              <p className="text-xs text-green-600 font-medium text-center">
+                                🎉 Félicitations ! Vous bénéficiez de la livraison gratuite
+                              </p>
+                            )}
+
+                            {/* Barre de progression */}
+                            <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
+                              <div 
+                                className="absolute left-0 top-0 h-full bg-[#048B9A] transition-all duration-500 ease-out"
+                                style={{ 
+                                  width: `${progress}%`,
+                                  background: progress === 100 
+                                    ? 'linear-gradient(90deg, #048B9A, #04B9A0)' 
+                                    : '#048B9A' 
+                                }}
+                              />
                             </div>
-                            <div className="space-y-2">
-                              <Link 
-                                href="/panier"
-                                className="block w-full bg-[#048B9A] text-white text-center py-2 rounded-md hover:bg-[#037483] transition-colors"
-                              >
-                                Voir le panier
-                              </Link>
-                              <Link 
-                                href="/paiement"
-                                className="block w-full bg-gray-100 text-gray-700 text-center py-2 rounded-md hover:bg-gray-200 transition-colors"
-                              >
-                                Commander
-                              </Link>
+
+                            {/* Marqueurs */}
+                            <div className="flex justify-between text-[10px] text-gray-400">
+                              <span>0 GNF</span>
+                              <span>{minForFreeShipping.toLocaleString()} GNF</span>
                             </div>
                           </div>
-                        </>
-                      )}
+                        );
+                      })()}
+                    </div>
+
+                    {/* Boutons d'action */}
+                    <div className="space-y-2">
+                      <Link 
+                        href="/panier"
+                        className="block w-full bg-[#048B9A] text-white text-center py-2.5 rounded-lg hover:bg-[#037483] transition-colors"
+                      >
+                        Voir le panier
+                      </Link>
+                      <Link 
+                        href="/paiement"
+                        className="block w-full bg-gray-100 text-gray-700 text-center py-2.5 rounded-lg hover:bg-gray-200 transition-colors"
+                      >
+                        Commander
+                      </Link>
                     </div>
                   </div>
                 )}

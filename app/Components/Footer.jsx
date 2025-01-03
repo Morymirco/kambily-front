@@ -160,12 +160,12 @@ const Footer = () => {
 
             {/* Méthodes de paiement */}
             <div className="flex gap-3">
-              <Image src="/images/payments/om.webp" alt="Orange Money" width={40} height={24} />
-              <Image src="/images/payments/momo.webp" alt="MTN" width={40} height={24} />
-              <Image src="/images/payments/paycard.webp" alt="Apple Pay" width={40} height={24} />
-              <Image src="/images/payments/paypal.webp" alt="PayPal" width={40} height={24} />
-              <Image src="/images/payments/visa.webp" alt="Visa" width={40} height={24} />
-              <Image src="/images/payments/master.webp" alt="Mastercard" width={40} height={24} />
+              <Image src="/paiements/om.png" alt="Orange Money" width={40} height={24}  className='bg-white object-contain'/>
+              <Image src="/paiements/momo.png" alt="MTN" width={40} height={24}  className='bg-white object-contain '/>
+              <Image src="/paiements/paycard.png" alt="Apple Pay" width={40} height={24} className='bg-white object-contain p-1'/>
+              <Image src="/paiements/paypal.png" alt="PayPal" width={40} height={24} className='bg-white object-contain'/>
+              <Image src="/paiements/visa.png" alt="Visa" width={40} height={24} className='bg-white object-contain'/>
+              <Image src="/paiements/mastercard.png" alt="Mastercard" width={40} height={24} className='bg-white object-contain'/>
             </div>
           </div>
 

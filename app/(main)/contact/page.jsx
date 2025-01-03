@@ -1,14 +1,14 @@
 'use client'
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  FaFacebookF, 
-  FaInstagram, 
-  FaTwitter, 
-  FaPinterestP, 
-  FaLinkedinIn,
-  FaPhone,
-  FaEnvelope 
+import { useState } from 'react';
+import {
+    FaEnvelope,
+    FaFacebookF,
+    FaInstagram,
+    FaLinkedinIn,
+    FaPhone,
+    FaPinterestP,
+    FaTwitter
 } from 'react-icons/fa';
 
 const Contact = () => {

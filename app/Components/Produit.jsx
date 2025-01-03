@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import {
   FaChevronLeft, FaChevronRight,
@@ -330,7 +331,7 @@ const Produit = ({ image, gallery = [], title, price, inStock, category }) => {
                 )}
 
                 {/* Prix */}
-                <p className="text-3xl font-bold text-[#12B886]">{price}GNF</p>
+                <p className="text-3xl font-bold">{price}GNF</p>
 
                 {/* Groupe Quantité + Ajouter au panier */}
                 <div className="flex items-center gap-4">
@@ -492,12 +493,15 @@ const ProductList = () => {
           </div>
           <p className="text-gray-500">Achetez maintenant et profitez de l'offre !</p>
         </div>
-        <button className="flex items-center text-[#048B9A]">
+        <Link href="/boutique">  <button className="flex items-center text-[#048B9A]">
+         
           Voir Plus
+         
           <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6">

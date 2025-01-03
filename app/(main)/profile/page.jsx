@@ -1,8 +1,8 @@
 'use client'
+import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState } from 'react';
 import { FaAddressCard, FaCamera, FaCog, FaHeart, FaShoppingBag, FaSignOutAlt, FaUser } from 'react-icons/fa';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('profile');

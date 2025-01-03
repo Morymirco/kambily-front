@@ -3,37 +3,29 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import {
-  FaBars,
-  FaBox,
-  FaChartBar, FaCog,
-  FaHome,
-  FaShoppingCart,
-  FaTimes,
-  FaTruck,
-  FaUsers
+    FaBars,
+    FaChartLine,
+    FaHistory,
+    FaHome,
+    FaMoneyBillWave,
+    FaMotorcycle,
+    FaStar,
+    FaTimes,
+    FaUser
 } from 'react-icons/fa';
 
-const AdminLayout = ({ children }) => {
+const DriverLayout = ({ children }) => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const pathname = usePathname();
 
   const menuItems = [
-    { name: 'Dashboard', icon: FaHome, path: '/admin' },
-    { name: 'Produits', icon: FaBox, path: '/admin/products' },
-    { name: 'Utilisateurs', icon: FaUsers, path: '/admin/users' },
-    {
-        name: 'Assigner Livraisons',
-        icon: FaTruck,
-        path: '/admin/assign-deliveries'
-      },
-    {
-      name: 'Livreurs',
-      icon: FaTruck,
-      path: '/admin/deliverers'
-    },
-    { name: 'Commandes', icon: FaShoppingCart, path: '/admin/orders' },
-    { name: 'Statistiques', icon: FaChartBar, path: '/admin/stats' },
-    { name: 'Paramètres', icon: FaCog, path: '/admin/settings' },
+    { name: 'Dashboard', icon: FaHome, path: '/driver' },
+    { name: 'Mes Livraisons', icon: FaMotorcycle, path: '/driver/deliveries' },
+    { name: 'Historique', icon: FaHistory, path: '/driver/history' },
+    { name: 'Mes Gains', icon: FaMoneyBillWave, path: '/driver/earnings' },
+    { name: 'Mes Évaluations', icon: FaStar, path: '/driver/ratings' },
+    { name: 'Mon Profil', icon: FaUser, path: '/driver/profile' },
+    { name: 'Analyses', icon: FaChartLine, path: '/driver/analytics' }
   ];
 
   return (
@@ -47,7 +39,7 @@ const AdminLayout = ({ children }) => {
         <div className="flex flex-col h-full w-64 bg-white border-r">
           {/* Logo */}
           <div className="flex items-center justify-between h-16 px-4 border-b">
-            <Link href="/admin" className="flex items-center">
+            <Link href="/driver" className="flex items-center">
               <img src="/logo.webp" alt="Logo" className="h-8" />
             </Link>
             <button 
@@ -83,11 +75,11 @@ const AdminLayout = ({ children }) => {
           <div className="p-4 border-t">
             <div className="flex items-center">
               <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                <FaUsers className="w-5 h-5 text-gray-500" />
+                <FaUser className="w-5 h-5 text-gray-500" />
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium">Admin User</p>
-                <p className="text-xs text-gray-500">admin@kambily.com</p>
+                <p className="text-sm font-medium">Mamadou Diallo</p>
+                <p className="text-xs text-gray-500">Livreur</p>
               </div>
             </div>
           </div>
@@ -120,4 +112,4 @@ const AdminLayout = ({ children }) => {
   );
 };
 
-export default AdminLayout; 
+export default DriverLayout; 

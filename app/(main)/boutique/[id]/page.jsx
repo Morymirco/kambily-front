@@ -1,10 +1,11 @@
 'use client'
-import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaStar, FaHeart, FaShoppingCart, FaShare, FaFacebookF, FaTwitter, FaLinkedinIn, FaUser } from 'react-icons/fa';
-import { IoMdClose } from 'react-icons/io';
+import { useState } from 'react';
+import { FaFacebookF, FaHeart, FaLinkedinIn, FaShare, FaShoppingCart, FaStar, FaTimes, FaTwitter, FaUser } from 'react-icons/fa';
 import { FiZoomIn } from 'react-icons/fi';
+import { IoMdClose } from 'react-icons/io';
 
 const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -14,8 +15,9 @@ const ProductDetail = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [newReview, setNewReview] = useState({
     rating: 0,
+    title: '',
     comment: '',
-    title: ''
+    images: []
   });
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImageIndex, setLightboxImageIndex] = useState(0);
@@ -94,14 +96,20 @@ const ProductDetail = () => {
   // Données des catégories
   const categories = ['Pyjama', 'Femme', 'Ensemble', 'Nuit'];
 
-  // Gérer la soumission de l'avis
+  // Fonction pour gérer la soumission de l'avis
   const handleSubmitReview = (e) => {
     e.preventDefault();
-    // Logique pour soumettre l'avis
+    // Ici vous pouvez ajouter la logique pour envoyer l'avis à votre backend
     console.log('Nouvel avis:', newReview);
+    
+    // Réinitialiser le formulaire et fermer le modal
+    setNewReview({
+      rating: 0,
+      title: '',
+      comment: '',
+      images: []
+    });
     setShowReviewModal(false);
-    // Réinitialiser le formulaire
-    setNewReview({ rating: 0, comment: '', title: '' });
   };
 
   // Fonction pour ouvrir le lightbox
@@ -512,10 +520,15 @@ const ProductDetail = () => {
               </div>
 
               {/* Bouton Ajouter un avis */}
-              <div className="text-center">
-                <button className="bg-[#048B9A] text-white px-6 py-3 rounded-lg hover:bg-[#037483] transition-colors">
+              <div className="text-center mt-8">
+                <motion.button
+                  onClick={() => setShowReviewModal(true)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="bg-[#048B9A] text-white px-6 py-3 rounded-lg hover:bg-[#037483] transition-colors"
+                >
                   Donner votre avis
-                </button>
+                </motion.button>
               </div>
             </div>
           )}
@@ -611,140 +624,110 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      {/* Modal Donner un avis */}
-      {showReviewModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Header du modal */}
-            <div className="flex justify-between items-center p-6 border-b">
-              <h3 className="text-xl font-bold">Donner votre avis</h3>
-              <button 
-                onClick={() => setShowReviewModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+      {/* Modal pour donner un avis */}
+      <AnimatePresence>
+        {showReviewModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+            onClick={() => setShowReviewModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              {/* Header du modal */}
+              <div className="flex justify-between items-center p-6 border-b">
+                <h3 className="text-xl font-bold">Donner votre avis</h3>
+                <button 
+                  onClick={() => setShowReviewModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <FaTimes className="w-5 h-5" />
+                </button>
+              </div>
 
-            {/* Contenu du modal */}
-            <form onSubmit={handleSubmitReview} className="p-6 space-y-6">
-              {/* Produit évalué */}
-              <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                <div className="relative w-20 h-20 rounded-lg overflow-hidden">
-                  <Image
-                    src={productImages[0]}
-                    alt="Product"
-                    fill
-                    className="object-cover"
+              {/* Formulaire d'avis */}
+              <form onSubmit={handleSubmitReview} className="p-6 space-y-6">
+                {/* Note */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Votre note *
+                  </label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setNewReview({ ...newReview, rating: star })}
+                        className="text-2xl focus:outline-none"
+                      >
+                        <FaStar 
+                          className={star <= newReview.rating 
+                            ? "text-yellow-400" 
+                            : "text-gray-300"
+                          } 
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Titre */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Titre de votre avis *
+                  </label>
+                  <input
+                    type="text"
+                    value={newReview.title}
+                    onChange={(e) => setNewReview({ ...newReview, title: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A]"
+                    required
                   />
                 </div>
+
+                {/* Commentaire */}
                 <div>
-                  <h4 className="font-medium">Ensemble De Pyjama Short & Top</h4>
-                  <p className="text-sm text-gray-500">Taille: {selectedSize}</p>
-                </div>
-              </div>
-
-              {/* Note */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Votre note *
-                </label>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setNewReview({ ...newReview, rating: star })}
-                      className="text-2xl focus:outline-none"
-                    >
-                      <FaStar 
-                        className={star <= newReview.rating 
-                          ? "text-yellow-400" 
-                          : "text-gray-300"
-                        } 
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Titre de l'avis */}
-              <div>
-                <label htmlFor="review-title" className="block text-sm font-medium text-gray-700 mb-2">
-                  Titre de votre avis *
-                </label>
-                <input
-                  type="text"
-                  id="review-title"
-                  value={newReview.title}
-                  onChange={(e) => setNewReview({ ...newReview, title: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A]"
-                  required
-                  maxLength={100}
-                />
-              </div>
-
-              {/* Commentaire */}
-              <div>
-                <label htmlFor="review-comment" className="block text-sm font-medium text-gray-700 mb-2">
-                  Votre avis détaillé *
-                </label>
-                <textarea
-                  id="review-comment"
-                  value={newReview.comment}
-                  onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                  rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A]"
-                  required
-                  maxLength={500}
-                  placeholder="Partagez votre expérience avec ce produit..."
-                />
-                <p className="mt-1 text-sm text-gray-500">
-                  {500 - newReview.comment.length} caractères restants
-                </p>
-              </div>
-
-              {/* Photos */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Ajouter des photos (optionnel)
-                </label>
-                <div className="flex items-center justify-center w-full">
-                  <label className="w-full h-32 flex flex-col items-center justify-center border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
-                      <p className="text-sm text-gray-500">Cliquez pour ajouter des photos</p>
-                    </div>
-                    <input type="file" className="hidden" multiple accept="image/*" />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Votre avis détaillé *
                   </label>
+                  <textarea
+                    value={newReview.comment}
+                    onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                    rows={4}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A]"
+                    required
+                  />
                 </div>
-              </div>
 
-              {/* Footer avec boutons */}
-              <div className="flex gap-4 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowReviewModal(false)}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-2 bg-[#048B9A] text-white rounded-lg hover:bg-[#037483] disabled:opacity-50"
-                  disabled={!newReview.rating || !newReview.comment.trim() || !newReview.title.trim()}
-                >
-                  Publier l'avis
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+                {/* Boutons d'action */}
+                <div className="flex gap-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowReviewModal(false)}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 py-2 bg-[#048B9A] text-white rounded-lg hover:bg-[#037483] disabled:opacity-50"
+                    disabled={!newReview.rating || !newReview.comment.trim() || !newReview.title.trim()}
+                  >
+                    Publier l'avis
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
