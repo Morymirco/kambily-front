@@ -34,10 +34,10 @@ const ScrollToTop = () => {
       {isVisible && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 bg-[#E9EAEA] hover:bg-[#048B9A] text-[#048B9A] hover:text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110 z-50"
+          className="fixed bottom-24 md:bottom-8 right-4 md:right-8 bg-[#E9EAEA] hover:bg-[#048B9A] text-[#048B9A] hover:text-white w-10 h-10 md:w-12 md:h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 transform hover:scale-110 z-50 hidden md:flex"
           aria-label="Remonter en haut"
         >
-          <FaArrowUp className="w-5 h-5" />
+          <FaArrowUp className="w-4 h-4 md:w-5 md:h-5" />
         </button>
       )}
     </>

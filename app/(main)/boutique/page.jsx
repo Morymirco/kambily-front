@@ -312,8 +312,8 @@ const ProductCard = ({ id, image, gallery = [], title, price, inStock, category,
               bg-[#048B9A] text-white rounded-lg flex items-center justify-center gap-2 
               hover:bg-[#037383] transition-all relative overflow-hidden
               ${viewMode === 'list' 
-                ? 'w-[200px] h-12 opacity-100' 
-                : 'w-full h-10 opacity-0 group-hover:opacity-100'
+                ? 'w-[200px] h-12' 
+                : 'w-full h-10 sm:opacity-0 sm:group-hover:opacity-100'
               }
               ${isAddingToCart ? 'cursor-wait' : 'cursor-pointer'}
             `}
@@ -701,7 +701,7 @@ const Boutique = () => {
         <span className="text-gray-900">Boutique</span>
       </div>
 
-      {/* Barre de recherche avec animation */}
+      {/* Barre de recherche avec suggestions */}
       <motion.div 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -725,49 +725,51 @@ const Boutique = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
+              onBlur={() => {
+                setTimeout(() => setIsSearchFocused(false), 200)
+              }}
               className="w-full px-5 py-4 pr-12 border border-gray-300 rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A] bg-white transition-all duration-200"
             />
-            <motion.button 
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#048B9A] transition-colors"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              aria-label="Rechercher"
-            >
-              <FaSearch className="w-5 h-5" />
-            </motion.button>
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+              <FaSearch className={`w-5 h-5 transition-colors duration-200 ${
+                isSearchFocused ? 'text-[#048B9A]' : 'text-gray-400'
+              }`} />
+            </div>
           </motion.div>
+          
+          {/* Suggestions de recherche avec animation */}
+          <AnimatePresence>
+            {searchQuery && isSearchFocused && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="absolute left-0 right-0 mt-2 bg-white rounded-lg shadow-lg p-4 z-20"
+              >
+                <h3 className="text-sm font-medium text-gray-600 mb-3">Suggestions :</h3>
+                <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                  {['Robe d\'été', 'Robe de soirée', 'Robe longue'].filter(item => 
+                    item.toLowerCase().includes(searchQuery.toLowerCase())
+                  ).map((suggestion, index) => (
+                    <motion.button
+                      key={suggestion}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      onClick={() => {
+                        setSearchQuery(suggestion);
+                        setIsSearchFocused(false);
+                      }}
+                      className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-gray-700"
+                    >
+                      {suggestion}
+                    </motion.button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-        
-        {/* Suggestions de recherche avec animation */}
-        <AnimatePresence>
-          {searchQuery && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="mt-3 bg-white rounded-lg shadow-lg p-4 absolute z-10 w-full max-w-2xl left-1/2 -translate-x-1/2"
-            >
-              <h3 className="text-sm font-medium text-gray-600 mb-3">Suggestions :</h3>
-              <div className="space-y-2">
-                {['Robe d\'été', 'Robe de soirée', 'Robe longue'].filter(item => 
-                  item.toLowerCase().includes(searchQuery.toLowerCase())
-                ).map((suggestion, index) => (
-                  <motion.button
-                    key={suggestion}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    onClick={() => setSearchQuery(suggestion)}
-                    className="block w-full text-left px-3 py-2 rounded hover:bg-gray-50 text-gray-700"
-                  >
-                    {suggestion}
-                  </motion.button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Tags populaires avec animation */}
         <motion.div 
@@ -785,7 +787,10 @@ const Boutique = () => {
               transition={{ delay: 0.3 + index * 0.1 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setSearchQuery(tag)}
+              onClick={() => {
+                setSearchQuery(tag);
+                setIsSearchFocused(false);
+              }}
               className="px-3 py-1 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
             >
               {tag}
@@ -795,21 +800,34 @@ const Boutique = () => {
       </motion.div>
 
       {/* Barre d'outils de la boutique */}
-      <div className="bg-gray-50 p-4 rounded-lg flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-        {/* Nombre de résultats */}
-        <div className="text-gray-600 text-sm">
-          Affichage de 1–12 sur 24 résultats
+      <div className="bg-gray-50 p-4 rounded-lg flex flex-col gap-4 mb-8">
+        {/* Première ligne : Résultats et Filtres */}
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          {/* Nombre de résultats */}
+          <div className="text-gray-600 text-sm">
+            Affichage de 1–12 sur 24 résultats
+          </div>
+
+          {/* Bouton Filter */}
+          <button 
+            onClick={() => setShowFilters(true)}
+            className="flex items-center gap-2 bg-[#048B9A] text-white px-4 py-2 rounded-lg hover:bg-[#037483] transition-colors text-sm"
+          >
+            <FaFilter className="w-4 h-4" />
+            <span className="hidden sm:inline">Filter Products</span>
+            <span className="sm:hidden">Filtres</span>
+          </button>
         </div>
 
-        {/* Options de tri et affichage */}
-        <div className="flex items-center gap-6">
+        {/* Deuxième ligne : Options de tri et affichage */}
+        <div className="flex flex-wrap items-center gap-4">
           {/* Tri */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Sort:</span>
+          <div className="flex items-center gap-2 flex-grow sm:flex-grow-0">
+            <span className="text-sm text-gray-600 hidden sm:inline">Sort:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="border border-gray-300 rounded-lg py-2 px-4 text-sm focus:ring-[#048B9A] focus:border-[#048B9A] bg-white"
+              className="border border-gray-300 rounded-lg py-2 px-3 text-sm focus:ring-[#048B9A] focus:border-[#048B9A] bg-white w-full sm:w-auto"
             >
               <option value="popular">Tri par popularité</option>
               <option value="recent">Plus récents</option>
@@ -819,19 +837,19 @@ const Boutique = () => {
           </div>
 
           {/* Nombre d'items par page */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Show:</span>
+          <div className="flex items-center gap-2 order-last sm:order-none">
+            <span className="text-sm text-gray-600 hidden sm:inline">Show:</span>
             <select
-              className="border border-gray-300 rounded-lg py-2 px-4 text-sm focus:ring-[#048B9A] focus:border-[#048B9A] bg-white"
+              className="border border-gray-300 rounded-lg py-2 px-3 text-sm focus:ring-[#048B9A] focus:border-[#048B9A] bg-white"
             >
-              <option>12 Items</option>
-              <option>24 Items</option>
-              <option>36 Items</option>
+              <option>12</option>
+              <option>24</option>
+              <option>36</option>
             </select>
           </div>
 
-          {/* Boutons de vue */}
-          <div className="flex items-center gap-2">
+          {/* Boutons de vue - Masqués sur mobile */}
+          <div className="hidden md:flex items-center gap-2 ml-auto">
             <button 
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-lg transition-colors ${
@@ -859,15 +877,6 @@ const Boutique = () => {
               </svg>
             </button>
           </div>
-
-          {/* Bouton Filter */}
-          <button 
-            onClick={() => setShowFilters(true)}
-            className="flex items-center gap-2 bg-[#048B9A] text-white px-4 py-2 rounded-lg hover:bg-[#037483] transition-colors"
-          >
-            <FaFilter className="w-4 h-4" />
-            <span>Filter Products</span>
-          </button>
         </div>
       </div>
 

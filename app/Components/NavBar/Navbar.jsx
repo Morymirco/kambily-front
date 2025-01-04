@@ -2,8 +2,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { FaEnvelope, FaGlobe, FaMoon, FaPhone, FaSun, FaTrash } from 'react-icons/fa';
+import { useEffect, useState, useRef } from 'react';
+import { FaEnvelope, FaGlobe, FaMoon, FaPhone, FaSearch, FaShoppingCart, FaSun } from 'react-icons/fa';
+import MobileNav from './MobileNav';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Navbar() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -12,6 +14,8 @@ export default function Navbar() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showLanguages, setShowLanguages] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [showCartPopup, setShowCartPopup] = useState(false);
+  const cartPopupTimer = useRef(null);
   
   const languages = [
     { code: 'fr', name: 'Français', flag: '/flags/fr.png' },
@@ -47,6 +51,11 @@ export default function Navbar() {
   ];
 
   const pathname = usePathname();
+
+  // Calculer le total du panier
+  const cartTotal = cartItems.reduce((total, item) => {
+    return total + (item.price * item.quantity);
+  }, 0);
 
   useEffect(() => {
     // Définition des couleurs
@@ -88,18 +97,29 @@ export default function Navbar() {
     console.log('Item removed:', itemId);
   };
 
+  const handleCartMouseEnter = () => {
+    if (cartPopupTimer.current) clearTimeout(cartPopupTimer.current);
+    setShowCartPopup(true);
+  };
+
+  const handleCartMouseLeave = () => {
+    cartPopupTimer.current = setTimeout(() => {
+      setShowCartPopup(false);
+    }, 300);
+  };
+
   return (
     <nav className="w-full bg-white shadow-sm font-krub">
-      {/* Barre supérieure avec promotion et timer */}
+      {/* Barre supérieure avec promotion et timer - cachée sur mobile */}
       <div 
         id="dynamic-banner"
-        className="w-full text-white py-2.5 transition-all duration-1000 ease-in-out bg-gradient-to-r"
+        className="hidden sm:block w-full text-white py-2.5 transition-all duration-1000 ease-in-out bg-gradient-to-r"
         style={{
           backgroundSize: '400% 400%',
           animation: 'gradient 15s ease infinite',
         }}
       >
-        <div className="max-w-[1400px] mx-auto px-16">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16">
           <div className="flex justify-between items-center text-sm">
             <div className="flex items-center gap-4">
               <p>Toutes les livraisons sont gratuites pendant 2 semaines. Profitez en !</p>
@@ -175,9 +195,9 @@ export default function Navbar() {
         </div>
       </div>
       
-      {/* Barre de contact */}
-      <div className="w-full bg-gray-100 py-3 text-sm text-gray-600">
-        <div className="max-w-[1400px] mx-auto px-16">
+      {/* Barre de contact - cachée sur mobile */}
+      <div className="hidden sm:block w-full bg-gray-100 py-3 text-sm text-gray-600">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16">
           <p className="text-right">
             Besoin d'aide? Appelez nous:{" "}
             <a href="tel:+224624228855" className="font-medium">(+224) 624 228 855</a>
@@ -301,20 +321,20 @@ export default function Navbar() {
 
       {/* Navigation principale */}
       <div className="w-full">
-        <div className="max-w-[1400px] mx-auto px-16 py-4">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-8 md:px-12 lg:px-16 py-2 sm:py-4">
           <div className="flex items-center justify-between">
-            {/* Bouton du drawer */}
+            {/* Bouton du drawer - visible sur mobile et desktop */}
             <button 
               onClick={() => setIsDrawerOpen(true)}
               className="hover:text-cyan-600"
             >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
 
-            {/* Logo */}
-            <div className="w-[200px] ml-8">
+            {/* Logo - centré sur mobile */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 sm:static sm:transform-none sm:ml-8">
               <Link href="/" className="flex-shrink-0">
                 <Image
                   src="/logo.webp"
@@ -322,11 +342,12 @@ export default function Navbar() {
                   width={120}
                   height={40}
                   priority
+                  className="w-[100px] sm:w-[120px]"
                 />
               </Link>
             </div>
 
-            {/* Liens de navigation */}
+            {/* Liens de navigation - cachés sur mobile */}
             <div className="hidden lg:flex items-center justify-center flex-1 px-8">
               <div className="flex items-center space-x-12">
                 <Link href="/" className="hover:text-cyan-600">Accueil</Link>
@@ -394,210 +415,176 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* Icônes droites */}
-            <div className="w-[200px] flex items-center justify-end space-x-6">
-              {/* Icône Recherche */}
-              <Link 
-                href="/boutique"
-                className="hover:text-cyan-600 transition-colors"
-              >
-                <svg 
-                  viewBox="0 0 24 24" 
-                  className="w-6 h-6" 
-                  fill="none" 
-                  stroke="currentColor"
-                >
-                  <path 
-                    d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </Link>
+            {/* Icônes droites - adaptées pour mobile */}
+            <div className="flex items-center justify-end space-x-4 sm:space-x-6">
+              {/* Icône Recherche - cachée sur mobile */}
+              <button className="hidden sm:flex items-center gap-2 text-gray-600 hover:text-[#048B9A]">
+                <FaSearch className="w-5 h-5" />
+              </button>
 
-              {/* Icône Profil */}
-              <div className="relative group">
-                <Link 
-                  href="/profile" 
-                  className={`hover:text-cyan-600 flex flex-col items-center ${
-                    pathname === '/profile' ? 'text-[#048B9A]' : ''
-                  }`}
-                >
-                  {pathname === '/profile' && isLoggedIn ? (
-                    <>
-                      <span className="absolute -top-5 whitespace-nowrap text-xs font-medium">
-                        Hello, Kambily
-                      </span>
-                      <div className="w-7 h-7 rounded-full border-2 border-current flex items-center justify-center overflow-hidden">
-                        <Image
-                          src="/team/mory.jpg"
-                          alt="Profile"
-                          width={28}
-                          height={28}
-                          className="object-cover"
-                        />
-                      </div>
-                    </>
-                  ) : (
-                    <div className="w-7 h-7 rounded-full border-2 border-current flex items-center justify-center">
-                      <svg 
-                        viewBox="0 0 24 24" 
-                        className="w-4 h-4" 
-                        fill="none" 
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                        <circle cx="12" cy="7" r="4" />
-                      </svg>
-                    </div>
-                  )}
-                </Link>
-              </div>
-
-              {/* Icône Panier */}
+              {/* Icône Panier avec popup */}
               <div 
                 className="relative"
-                onMouseEnter={() => setShowCartModal(true)}
-                onMouseLeave={() => setShowCartModal(false)}
+                onMouseEnter={handleCartMouseEnter}
+                onMouseLeave={handleCartMouseLeave}
               >
-                <Link href="/panier" className="relative hover:text-cyan-600">
-                  <svg 
-                    viewBox="0 0 24 24" 
-                    className="w-6 h-6" 
-                    fill="none" 
-                    stroke="currentColor"
-                  >
-                    <path 
-                      d="M4.78571 5H18.2251C19.5903 5 20.5542 6.33739 20.1225 7.63246L18.4558 12.6325C18.1836 13.4491 17.4193 14 16.5585 14H6.07142M4.78571 5L4.74531 4.71716C4.60455 3.73186 3.76071 3 2.76541 3H2M4.78571 5L6.07142 14M6.07142 14L6.25469 15.2828C6.39545 16.2681 7.23929 17 8.23459 17H17M17 17C15.8954 17 15 17.8954 15 19C15 20.1046 15.8954 21 17 21C18.1046 21 19 20.1046 19 19C19 17.8954 18.1046 17 17 17ZM11 19C11 20.1046 10.1046 21 9 21C7.89543 21 7 20.1046 7 19C7 17.8954 7.89543 17 9 17C10.1046 17 11 17.8954 11 19Z" 
-                      strokeWidth="2" 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <span className="absolute -top-2 -right-2 bg-cyan-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                <button 
+                  className="relative text-gray-600 hover:text-[#048B9A]"
+                >
+                  <FaShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <span className="absolute -top-2 -right-2 w-5 h-5 bg-[#048B9A] text-white text-xs rounded-full flex items-center justify-center">
                     {cartItems.length}
                   </span>
-                </Link>
+                </button>
 
-                {/* Modal du panier */}
-                {showCartModal && (
-                  <div 
-                    className="absolute right-0 top-full mt-2 w-[400px] bg-white rounded-lg shadow-xl z-50 border border-gray-100"
-                    onMouseEnter={() => setShowCartModal(true)}
-                    onMouseLeave={() => setShowCartModal(false)}
-                  >
-                    {/* En-tête */}
-                    <div className="p-4 border-b">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-medium">Mon Panier</h3>
-                        <span className="text-sm text-gray-500">({cartItems.length} articles)</span>
-                      </div>
-                    </div>
-
-                    {/* Liste des produits */}
-                    <div className="max-h-[300px] overflow-y-auto p-4 space-y-4">
-                      {cartItems.map((item) => (
-                        <div key={item.id} className="flex gap-4 items-start group">
-                          {/* Image */}
-                          <div className="relative w-16 h-16 flex-shrink-0">
-                            <Image
-                              src={item.image}
-                              alt={item.name}
-                              fill
-                              className="object-cover rounded-md"
-                            />
-                          </div>
-
-                          {/* Détails */}
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-medium truncate group-hover:text-[#048B9A] transition-colors">
-                              {item.name}
-                            </h4>
-                            <p className="text-sm text-gray-500">Quantité: {item.quantity}</p>
-                            <p className="text-sm font-medium text-[#048B9A]">
-                              {item.price.toLocaleString()} GNF
-                            </p>
-                          </div>
-
-                          {/* Bouton supprimer */}
-                          <button 
-                            onClick={() => removeFromCart(item.id)}
-                            className="p-1 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
-                          >
-                            <FaTrash size={14} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Barre de progression pour la livraison gratuite */}
-                    <div className="mt-4 px-2">
-                      {(() => {
-                        const minForFreeShipping = 100000; // Montant minimum pour la livraison gratuite
-                        const currentTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                        const remaining = Math.max(0, minForFreeShipping - currentTotal);
-                        const progress = Math.min(100, (currentTotal / minForFreeShipping) * 100);
-
-                        return (
-                          <div className="space-y-2">
-                            {remaining > 0 ? (
-                              <p className="text-xs text-gray-600 text-center">
-                                Ajoutez <span className="text-[#048B9A] font-medium">
-                                  {remaining.toLocaleString()} GNF
-                                </span> pour bénéficier de la livraison gratuite !
-                              </p>
-                            ) : (
-                              <p className="text-xs text-green-600 font-medium text-center">
-                                🎉 Félicitations ! Vous bénéficiez de la livraison gratuite
-                              </p>
-                            )}
-
-                            {/* Barre de progression */}
-                            <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
-                              <div 
-                                className="absolute left-0 top-0 h-full bg-[#048B9A] transition-all duration-500 ease-out"
-                                style={{ 
-                                  width: `${progress}%`,
-                                  background: progress === 100 
-                                    ? 'linear-gradient(90deg, #048B9A, #04B9A0)' 
-                                    : '#048B9A' 
-                                }}
+                {/* Popup du panier */}
+                <AnimatePresence>
+                  {showCartPopup && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute right-0 mt-4 w-80 bg-white rounded-lg shadow-lg z-50"
+                      onMouseEnter={() => {
+                        if (cartPopupTimer.current) clearTimeout(cartPopupTimer.current);
+                      }}
+                      onMouseLeave={handleCartMouseLeave}
+                    >
+                      {/* Barre de progression pour la livraison gratuite */}
+                      <div className="p-4 bg-gray-50 border-b">
+                        {cartTotal < 500000 ? (
+                          <>
+                            <div className="flex justify-between text-sm mb-2">
+                              <span className="text-gray-600">
+                                Livraison gratuite à partir de 500 000 GNF
+                              </span>
+                              <span className="font-medium">
+                                {((cartTotal / 500000) * 100).toFixed(0)}%
+                              </span>
+                            </div>
+                            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${(cartTotal / 500000) * 100}%` }}
+                                className="h-full bg-[#048B9A] rounded-full"
+                                transition={{ duration: 0.5 }}
                               />
                             </div>
+                            <p className="text-sm text-[#048B9A] mt-2">
+                              Ajoutez {(500000 - cartTotal).toLocaleString()} GNF au panier pour bénéficier de la livraison gratuite !
+                            </p>
+                          </>
+                        ) : (
+                          <div className="flex items-center gap-2 text-green-600">
+                            <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                            <span className="text-sm font-medium">
+                              Félicitations ! Vous bénéficiez de la livraison gratuite
+                            </span>
+                          </div>
+                        )}
+                      </div>
 
-                            {/* Marqueurs */}
-                            <div className="flex justify-between text-[10px] text-gray-400">
-                              <span>0 GNF</span>
-                              <span>{minForFreeShipping.toLocaleString()} GNF</span>
+                      {/* Reste du contenu du popup */}
+                      {cartItems.length > 0 ? (
+                        <>
+                          <div className="p-4 max-h-80 overflow-y-auto">
+                            {cartItems.map((item, index) => (
+                              <div key={index} className="flex items-center gap-4 mb-4">
+                                <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                                  <Image
+                                    src={item.image}
+                                    alt={item.name}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="text-sm font-medium text-gray-900 truncate">
+                                    {item.name}
+                                  </h3>
+                                  <p className="text-sm text-gray-500">
+                                    Quantité: {item.quantity}
+                                  </p>
+                                  <p className="text-sm font-medium text-[#048B9A]">
+                                    {item.price.toLocaleString()} GNF
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="p-4 border-t">
+                            {/* Total */}
+                            <div className="flex justify-between items-center mb-4">
+                              <span className="text-gray-600">Total</span>
+                              <span className="font-bold text-lg">
+                                {cartTotal.toLocaleString()} GNF
+                              </span>
+                            </div>
+                            {/* Boutons d'action */}
+                            <div className="flex gap-2">
+                              <Link 
+                                href="/panier"
+                                className="flex-1 block bg-[#048B9A] text-white text-center px-4 py-2 rounded-lg hover:bg-[#037483] transition-colors"
+                              >
+                                Voir le panier
+                              </Link>
+                              <Link 
+                                href="/commander"
+                                className="flex-1 block bg-green-600 text-white text-center px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                              >
+                                Commander
+                              </Link>
                             </div>
                           </div>
-                        );
-                      })()}
-                    </div>
-
-                    {/* Boutons d'action */}
-                    <div className="space-y-2">
-                      <Link 
-                        href="/panier"
-                        className="block w-full bg-[#048B9A] text-white text-center py-2.5 rounded-lg hover:bg-[#037483] transition-colors"
-                      >
-                        Voir le panier
-                      </Link>
-                      <Link 
-                        href="/paiement"
-                        className="block w-full bg-gray-100 text-gray-700 text-center py-2.5 rounded-lg hover:bg-gray-200 transition-colors"
-                      >
-                        Commander
-                      </Link>
-                    </div>
-                  </div>
-                )}
+                        </>
+                      ) : (
+                        <div className="p-4 text-center">
+                          <p className="text-gray-500">Votre panier est vide</p>
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
+
+              {/* Icône Utilisateur - Nouveau */}
+              <Link 
+                href="/profile" 
+                className="text-gray-600 hover:text-[#048B9A] transition-colors"
+              >
+                {isLoggedIn ? (
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-current flex items-center justify-center overflow-hidden">
+                    <Image
+                      src="/team/mory.jpg"
+                      alt="Profile"
+                      width={32}
+                      height={32}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <svg 
+                    viewBox="0 0 24 24" 
+                    className="w-5 h-5 sm:w-6 sm:h-6" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2"
+                  >
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                )}
+              </Link>
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Intégration de MobileNav */}
+      <div className="block md:hidden">
+        <MobileNav />
       </div>
     </nav>
   );

@@ -20,11 +20,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
     <html lang="fr">
       {/* <PromoPopup /> */}
       <body className={inter.className}>
-      {/* <Navbar /> */}
+      <Navbar />
       {children}
       
       
-      {/* <Footer /> */}
+      <Footer />
       <CookieConsent />
       <ScrollToTop/>
       </body>

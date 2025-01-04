@@ -136,83 +136,296 @@ const Profile = () => {
   );
 };
 
-const ProfileContent = () => (
-  <div>
-    <h2 className="text-xl font-semibold mb-6">Informations Personnelles</h2>
-    
-    {/* Photo de profil */}
-    <div className="mb-8 flex items-center gap-6">
-      <div className="relative">
-        <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100">
-          <Image
-            src="/team/mory.jpg"
-            alt="Profile"
-            fill
-            className="object-cover"
-          />
-        </div>
-        <button className="absolute bottom-0 right-0 bg-[#048B9A] text-white p-2 rounded-full hover:bg-[#037483] transition-colors">
-          <FaCamera size={14} />
-        </button>
-      </div>
-      <div>
-        <h3 className="font-medium text-lg">Mory koulibaly</h3>
-        <p className="text-gray-500">Membre depuis Mars 2024</p>
-      </div>
+const ProfileContent = () => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [profileData, setProfileData] = useState({
+    firstName: 'Mory',
+    lastName: 'Camara',
+    email: 'mory@example.com',
+    phone: '+224 621 00 00 00',
+    bio: 'Passionné de mode et de technologie',
+    avatar: '/team/mory.jpg'
+  });
+
+  // Variants pour les animations
+  const formVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.3,
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const inputVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100
+      }
+    }
+  };
+
+  const statsVariants = {
+    hidden: { scale: 0.8, opacity: 0 },
+    visible: {
+      scale: 1,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 200,
+        damping: 20
+      }
+    }
+  };
+
+  return (
+    <div>
+      <AnimatePresence mode="wait">
+        {!isEditing ? (
+          // Mode présentation
+          <motion.div 
+            className="space-y-8"
+            variants={formVariants}
+            initial="hidden"
+            animate="visible"
+            exit={{ opacity: 0, x: -20 }}
+          >
+            {/* En-tête du profil */}
+            <motion.div 
+              className="flex items-center gap-6"
+              variants={inputVariants}
+            >
+              <motion.div 
+                className="relative"
+                whileHover={{ scale: 1.05 }}
+              >
+                <div className="w-24 h-24 rounded-full overflow-hidden">
+                  <Image
+                    src={profileData.avatar}
+                    alt="Photo de profil"
+                    width={96}
+                    height={96}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              </motion.div>
+              <div>
+                <motion.h2 
+                  className="text-2xl font-bold mb-2"
+                  variants={inputVariants}
+                >
+                  {profileData.firstName} {profileData.lastName}
+                </motion.h2>
+                <motion.p 
+                  className="text-gray-600"
+                  variants={inputVariants}
+                >
+                  {profileData.bio}
+                </motion.p>
+              </div>
+              <motion.button
+                onClick={() => setIsEditing(true)}
+                className="ml-auto bg-[#048B9A] text-white px-4 py-2 rounded-lg hover:bg-[#037483] transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Modifier le profil
+              </motion.button>
+            </motion.div>
+
+            {/* Informations du profil */}
+            <motion.div className="grid gap-6" variants={formVariants}>
+              <motion.div 
+                className="border rounded-lg p-6 space-y-4"
+                variants={inputVariants}
+              >
+                <h3 className="text-lg font-semibold mb-4">Informations personnelles</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Prénom</p>
+                    <p className="font-medium">{profileData.firstName}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Nom</p>
+                    <p className="font-medium">{profileData.lastName}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Email</p>
+                    <p className="font-medium">{profileData.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Téléphone</p>
+                    <p className="font-medium">{profileData.phone}</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Statistiques */}
+              <motion.div 
+                className="grid grid-cols-3 gap-4"
+                variants={formVariants}
+              >
+                {[
+                  { value: 12, label: "Commandes" },
+                  { value: 5, label: "En favoris" },
+                  { value: 3, label: "Avis" }
+                ].map((stat, index) => (
+                  <motion.div
+                    key={index}
+                    className="border rounded-lg p-4 text-center"
+                    variants={statsVariants}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <motion.p 
+                      className="text-2xl font-bold text-[#048B9A]"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      {stat.value}
+                    </motion.p>
+                    <p className="text-sm text-gray-600">{stat.label}</p>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        ) : (
+          // Mode édition
+          <motion.form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setIsEditing(false);
+            }}
+            className="space-y-8"
+            variants={formVariants}
+            initial="hidden"
+            animate="visible"
+            exit={{ opacity: 0, x: 20 }}
+          >
+            <motion.div 
+              className="flex items-center gap-6 mb-8"
+              variants={inputVariants}
+            >
+              <div className="relative">
+                <motion.div 
+                  className="w-24 h-24 rounded-full overflow-hidden"
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <Image
+                    src={profileData.avatar}
+                    alt="Photo de profil"
+                    width={96}
+                    height={96}
+                    className="object-cover w-full h-full"
+                  />
+                </motion.div>
+                <motion.button
+                  type="button"
+                  className="absolute bottom-0 right-0 w-8 h-8 bg-[#048B9A] rounded-full flex items-center justify-center text-white hover:bg-[#037483] transition-colors"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <FaCamera className="w-4 h-4" />
+                </motion.button>
+              </div>
+              <div className="flex-1">
+                <input
+                  type="text"
+                  value={profileData.bio}
+                  onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A]"
+                  placeholder="Votre bio..."
+                />
+              </div>
+            </motion.div>
+
+            <div className="grid gap-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Prénom
+                  </label>
+                  <input
+                    type="text"
+                    value={profileData.firstName}
+                    onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nom
+                  </label>
+                  <input
+                    type="text"
+                    value={profileData.lastName}
+                    onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={profileData.email}
+                  onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Téléphone
+                </label>
+                <input
+                  type="tel"
+                  value={profileData.phone}
+                  onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A]"
+                />
+              </div>
+            </div>
+
+            <motion.div 
+              className="flex gap-4"
+              variants={inputVariants}
+            >
+              <motion.button
+                type="submit"
+                className="bg-[#048B9A] text-white px-6 py-2 rounded-lg hover:bg-[#037483] transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Enregistrer
+              </motion.button>
+              <motion.button
+                type="button"
+                onClick={() => setIsEditing(false)}
+                className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Annuler
+              </motion.button>
+            </motion.div>
+          </motion.form>
+        )}
+      </AnimatePresence>
     </div>
-
-    <form className="space-y-6">
-      <div className="grid md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Prénom
-          </label>
-          <input
-            type="text"
-            defaultValue="Mory"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-[#048B9A] focus:border-[#048B9A] bg-gray-50"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nom
-          </label>
-          <input
-            type="text"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#048B9A] focus:border-[#048B9A]"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email
-          </label>
-          <input
-            type="email"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#048B9A] focus:border-[#048B9A]"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Téléphone
-          </label>
-          <input
-            type="tel"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#048B9A] focus:border-[#048B9A]"
-          />
-        </div>
-      </div>
-
-      <div className="border-t pt-6">
-        <button
-          type="submit"
-          className="bg-[#048B9A] text-white px-8 py-3 rounded-lg hover:bg-[#037483] transition-colors"
-        >
-          Sauvegarder les modifications
-        </button>
-      </div>
-    </form>
-  </div>
-);
+  );
+};
 
 const OrdersContent = () => (
   <div>

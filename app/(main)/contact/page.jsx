@@ -1,5 +1,5 @@
 'use client'
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import {
     FaEnvelope,
@@ -18,6 +18,8 @@ const Contact = () => {
     sujet: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
 
   // Variants pour les animations
   const containerVariants = {
@@ -54,9 +56,35 @@ const Contact = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Formulaire soumis:', formData);
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    try {
+      // Simuler un appel API
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Réinitialiser le formulaire
+      setFormData({
+        nom: '',
+        email: '',
+        sujet: '',
+        message: ''
+      });
+      
+      setSubmitStatus({
+        type: 'success',
+        message: 'Message envoyé avec succès !'
+      });
+    } catch (error) {
+      setSubmitStatus({
+        type: 'error',
+        message: 'Une erreur est survenue. Veuillez réessayer.'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -245,14 +273,56 @@ const Contact = () => {
 
             <motion.button
               type="submit"
-              className="bg-[#048B9A] text-white px-8 py-3 rounded-lg hover:bg-[#037483] transition-colors"
+              disabled={isSubmitting}
+              className={`
+                w-full bg-[#048B9A] text-white px-8 py-3 rounded-lg 
+                transition-all duration-300 relative
+                ${isSubmitting ? 'bg-[#037483] cursor-not-allowed' : 'hover:bg-[#037483]'}
+              `}
               variants={itemVariants}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={!isSubmitting ? { scale: 1.05 } : {}}
+              whileTap={!isSubmitting ? { scale: 0.95 } : {}}
             >
-              Soumettre
+              <span className={`flex items-center justify-center gap-2 ${isSubmitting ? 'invisible' : ''}`}>
+                Envoyer le message
+              </span>
+              
+              {isSubmitting && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                </div>
+              )}
             </motion.button>
           </motion.form>
+
+          {/* Notification de statut */}
+          <AnimatePresence>
+            {submitStatus && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className={`mt-4 p-4 rounded-lg ${
+                  submitStatus.type === 'success' 
+                    ? 'bg-green-50 text-green-800' 
+                    : 'bg-red-50 text-red-800'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {submitStatus.type === 'success' ? (
+                    <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                  {submitStatus.message}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </div>
     </motion.div>

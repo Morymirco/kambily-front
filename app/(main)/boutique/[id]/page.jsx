@@ -3,9 +3,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
-import { FaFacebookF, FaHeart, FaLinkedinIn, FaShare, FaShoppingCart, FaStar, FaTimes, FaTwitter, FaUser } from 'react-icons/fa';
+import { FaFacebookF, FaHeart, FaLinkedinIn, FaShare, FaShoppingCart, FaStar, FaTimes, FaTwitter, FaWhatsapp } from 'react-icons/fa';
 import { FiZoomIn } from 'react-icons/fi';
 import { IoMdClose } from 'react-icons/io';
+import ProductCard from './../../../Components/Common/ProductCard';
 
 const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -21,6 +22,10 @@ const ProductDetail = () => {
   });
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [lightboxImageIndex, setLightboxImageIndex] = useState(0);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [showFavToast, setShowFavToast] = useState(false);
 
   // Images du produit (à remplacer par vos vraies images)
   const productImages = [
@@ -33,43 +38,43 @@ const ProductDetail = () => {
   // Tailles disponibles
   const sizes = ['S', 'M', 'L', 'XL'];
 
-  // Produits similaires
+  // Données des produits similaires
   const similarProducts = [
     {
       id: 1,
-      name: "Ensemble Pyjama Satin",
-      price: 75000,
-      oldPrice: 95000,
-      image: "/product5.jpg",
-      rating: 5,
-      reviews: 8
+      image: "/realite.webp",
+      gallery: ["/realite.webp", "/realite2.webp", "/realite3.webp"],
+      title: "Réalité Virtuelle Casque , Portable 3D Virtuel Réalité Lunettes Pour Films Et Jeux",
+      price: "185,000",
+      oldPrice: "210,000",
+      inStock: true,
+      description: "Profitez dès maintenant avant la fin de l'offre"
     },
     {
       id: 2,
-      name: "Pyjama Court Fleuri",
-      price: 55000,
-      oldPrice: 70000,
-      image: "/product6.jpg",
-      rating: 4,
-      reviews: 15
+      image: "/pochette.webp",
+      gallery: ["/pochette.webp", "/pochette2.webp"],
+      title: "Coque De Téléphone Portable Figure",
+      price: "45,000",
+      inStock: true
     },
     {
       id: 3,
-      name: "Nuisette Dentelle",
-      price: 45000,
-      oldPrice: 60000,
-      image: "/product7.jpg",
-      rating: 4,
-      reviews: 10
+      image: "/lumiere.webp",
+      gallery: ["/lumiere.webp", "/lumiere2.webp"],
+      title: "1 pièce Lumière d'ambiance pour téléphone clip rond avec miroir",
+      price: "40,000",
+      inStock: true
     },
     {
       id: 4,
-      name: "Pyjama Long Coton",
-      price: 85000,
-      oldPrice: 100000,
-      image: "/product8.jpg",
-      rating: 5,
-      reviews: 12
+      image: "/lunettes.webp",
+      gallery: ["/lunettes.webp", "/lunettes2.webp"],
+      title: "3 Pièces Lunettes De Soleil De Mode",
+      price: "85,000",
+      oldPrice: "100,000",
+      inStock: true,
+      description: "Ne manquez pas cette opportunité tant qu'elle dure"
     }
   ];
 
@@ -138,6 +143,41 @@ const ProductDetail = () => {
     );
   };
 
+  // Fonction pour gérer le partage
+  const handleShare = async (platform) => {
+    const url = window.location.href;
+    
+    switch (platform) {
+      case 'facebook':
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+        break;
+      case 'twitter':
+        window.open(`https://twitter.com/intent/tweet?url=${url}`, '_blank');
+        break;
+      case 'whatsapp':
+        window.open(`https://wa.me/?text=${url}`, '_blank');
+        break;
+      case 'linkedin':
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
+        break;
+      case 'copy':
+        try {
+          await navigator.clipboard.writeText(url);
+          setCopySuccess(true);
+          setTimeout(() => setCopySuccess(false), 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+        break;
+    }
+  };
+
+  const handleFavorite = () => {
+    setIsFavorite(!isFavorite);
+    setShowFavToast(true);
+    setTimeout(() => setShowFavToast(false), 2000);
+  };
+
   return (
     <div className="max-w-[1400px] mx-auto px-4 md:px-16 py-12">
       {/* Fil d'Ariane */}
@@ -202,10 +242,10 @@ const ProductDetail = () => {
         {/* Lightbox */}
         {isLightboxOpen && (
           <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center">
-            {/* Bouton fermer */}
+            {/* Bouton fermer - Correction de la position et du z-index */}
             <button
               onClick={closeLightbox}
-              className="absolute top-4 right-4 w-12 h-12 flex items-center justify-center text-white hover:text-gray-300 transition-colors"
+              className="fixed top-4 right-4 w-12 h-12 flex items-center justify-center text-white hover:text-gray-300 transition-colors z-[60]"
             >
               <IoMdClose className="w-8 h-8" />
             </button>
@@ -267,25 +307,36 @@ const ProductDetail = () => {
           <h1 className="text-3xl font-bold">Ensemble De Pyjama Short & Top À Fines Brides Imprimé Cœur</h1>
 
           {/* Prix et notation */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-[#048B9A]">65,000 GNF</span>
-                <span className="text-lg text-gray-500 line-through">85,000 GNF</span>
-              </div>
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <FaStar key={i} className={i < 4 ? "text-yellow-400" : "text-gray-300"} />
-                ))}
-                <span className="text-sm text-gray-500 ml-2">(12 avis)</span>
-              </div>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl font-bold text-[#048B9A]">65,000 GNF</span>
+              <span className="text-lg text-gray-500 line-through">85,000 GNF</span>
             </div>
-            <div className="flex gap-3">
-              <button className="w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-50">
-                <FaHeart className="text-gray-400" />
+
+            {/* Boutons d'action */}
+            <div className="flex items-center gap-3">
+              {/* Bouton favoris */}
+              <button 
+                onClick={handleFavorite}
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+                  isFavorite 
+                    ? 'bg-red-50 hover:bg-red-100' 
+                    : 'bg-gray-100 hover:bg-gray-200'
+                }`}
+              >
+                <FaHeart 
+                  className={`w-5 h-5 transition-colors duration-300 ${
+                    isFavorite ? 'text-red-500' : 'text-gray-600'
+                  }`} 
+                />
               </button>
-              <button className="w-10 h-10 rounded-lg border border-gray-300 flex items-center justify-center hover:bg-gray-50">
-                <FaShare className="text-gray-400" />
+
+              {/* Bouton partager */}
+              <button 
+                onClick={() => setShowShareModal(true)}
+                className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+              >
+                <FaShare className="w-5 h-5 text-gray-600" />
               </button>
             </div>
           </div>
@@ -535,91 +586,23 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      {/* Produits similaires */}
-      <div className="mt-20">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold">Produits similaires</h2>
-          <Link 
-            href="/boutique"
-            className="text-[#048B9A] hover:underline flex items-center gap-2"
-          >
-            Voir plus
-            <svg 
-              className="w-4 h-4" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Section Produits Similaires */}
+      <div className="mt-16">
+        <h2 className="text-2xl font-bold mb-8">Produits Similaires</h2>
+        
+        {/* Grille des produits similaires */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {similarProducts.map((product) => (
-            <div 
+            <ProductCard
               key={product.id}
-              className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-            >
-              {/* Image du produit */}
-              <div className="relative aspect-square">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                />
-                {/* Badge réduction */}
-                <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                  -{Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)}%
-                </div>
-                {/* Bouton favoris */}
-                <button className="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-gray-100">
-                  <FaHeart className="text-gray-400 hover:text-red-500" />
-                </button>
-              </div>
-
-              {/* Informations produit */}
-              <div className="p-4">
-                <Link href={`/boutique/${product.id}`} className="block">
-                  <h3 className="font-medium text-gray-900 mb-2 hover:text-[#048B9A] transition-colors">
-                    {product.name}
-                  </h3>
-                </Link>
-
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[#048B9A] font-bold">
-                    {product.price.toLocaleString()} GNF
-                  </span>
-                  <span className="text-sm text-gray-500 line-through">
-                    {product.oldPrice.toLocaleString()} GNF
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <FaStar 
-                        key={i}
-                        className={i < product.rating ? "text-yellow-400 w-4 h-4" : "text-gray-300 w-4 h-4"}
-                      />
-                    ))}
-                    <span className="text-xs text-gray-500 ml-1">
-                      ({product.reviews})
-                    </span>
-                  </div>
-
-                  <button className="w-8 h-8 bg-[#048B9A] text-white rounded-lg flex items-center justify-center hover:bg-[#037483] transition-colors">
-                    <FaShoppingCart className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
+              image={product.image}
+              gallery={product.gallery}
+              title={product.title}
+              price={product.price}
+              oldPrice={product.oldPrice}
+              inStock={product.inStock}
+              description={product.description}
+            />
           ))}
         </div>
       </div>
@@ -725,6 +708,149 @@ const ProductDetail = () => {
                 </div>
               </form>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal de partage */}
+      <AnimatePresence>
+        {showShareModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+            onClick={() => setShowShareModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-xl w-full max-w-md p-6"
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold">Partager ce produit</h3>
+                <button 
+                  onClick={() => setShowShareModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <FaTimes className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Lien du produit */}
+              <div className="mb-6">
+                <p className="text-sm text-gray-600 mb-2">Lien du produit :</p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={window.location.href}
+                    readOnly
+                    className="flex-1 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-600"
+                  />
+                  <button
+                    onClick={() => handleShare('copy')}
+                    className="px-4 py-2 bg-[#048B9A] text-white rounded-lg hover:bg-[#037483] transition-colors relative"
+                  >
+                    Copier
+                    {copySuccess && (
+                      <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs py-1 px-2 rounded">
+                        Copié !
+                      </span>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Boutons de partage */}
+              <div>
+                <p className="text-sm text-gray-600 mb-3">Partager sur les réseaux sociaux :</p>
+                <div className="grid grid-cols-4 gap-3">
+                  <button 
+                    onClick={() => handleShare('facebook')}
+                    className="flex flex-col items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <FaFacebookF className="w-6 h-6 text-blue-600" />
+                    <span className="text-xs text-gray-600">Facebook</span>
+                  </button>
+                  <button 
+                    onClick={() => handleShare('twitter')}
+                    className="flex flex-col items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <FaTwitter className="w-6 h-6 text-sky-500" />
+                    <span className="text-xs text-gray-600">Twitter</span>
+                  </button>
+                  <button 
+                    onClick={() => handleShare('whatsapp')}
+                    className="flex flex-col items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <FaWhatsapp className="w-6 h-6 text-green-500" />
+                    <span className="text-xs text-gray-600">WhatsApp</span>
+                  </button>
+                  <button 
+                    onClick={() => handleShare('linkedin')}
+                    className="flex flex-col items-center gap-2 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <FaLinkedinIn className="w-6 h-6 text-blue-700" />
+                    <span className="text-xs text-gray-600">LinkedIn</span>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast notification pour les favoris */}
+      <AnimatePresence>
+        {showFavToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-4 right-4 z-50"
+          >
+            <div className="bg-white border rounded-lg shadow-lg p-4 flex items-center gap-4">
+              {/* Image du produit */}
+              <div className="relative w-16 h-16 flex-shrink-0 rounded-md overflow-hidden">
+                <Image
+                  src={productImages[0]}
+                  alt="Product"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                {/* Titre du produit */}
+                <p className="text-gray-600 text-sm mb-1.5 line-clamp-2">
+                  Réalité Virtuelle Casque , Portable 3D Virtuel Réalité Lunettes Pour Films Et Jeux
+                </p>
+
+                <div className="flex items-center gap-1.5">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    isFavorite ? 'bg-red-100' : 'bg-gray-100'
+                  }`}>
+                    <FaHeart className={`w-4 h-4 ${
+                      isFavorite ? 'text-red-500' : 'text-gray-600'
+                    }`} />
+                  </div>
+                  <p className="text-sm font-medium">
+                    {isFavorite 
+                      ? 'Ajouté aux favoris' 
+                      : 'Retiré des favoris'
+                    }
+                  </p>
+                </div>
+                <Link href="/favoris">
+                  <button className="text-[#048B9A] text-sm hover:text-[#037483] transition-colors mt-1">
+                    Voir mes favoris
+                  </button>
+                </Link>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
