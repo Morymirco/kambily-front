@@ -1,5 +1,5 @@
 'use client'
-import { motion } from 'framer-motion';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -12,27 +12,75 @@ const MobileNav = () => {
     {
       label: 'Accueil',
       path: '/',
-      icon: '/icons/home.svg'
+      icon: (
+        <Image
+          src="/icons/home.svg"
+          alt="Accueil"
+          width={24}
+          height={24}
+          className="w-6 h-6"
+        />
+      )
     },
     {
       label: 'Boutique',
       path: '/boutique',
-      icon: '/icons/shop.svg'
+      icon: (
+        <Image
+          src="/icons/shop.svg"
+          alt="Boutique"
+          width={24}
+          height={24}
+          className="w-6 h-6"
+        />
+      )
     },
     {
       label: 'Panier',
       path: '/panier',
-      icon: '/icons/cart.svg'
+      icon: (
+        <Image
+          src="/icons/cart.svg"
+          alt="Panier"
+          width={24}
+          height={24}
+          className="w-6 h-6"
+        />
+      )
     },
     {
       label: 'Favoris',
       path: '/favoris',
-      icon: '/icons/heart.svg'
+      icon: (
+        <Image
+          src="/icons/heart.svg"
+          alt="Favoris"
+          width={24}
+          height={24}
+          className="w-6 h-6"
+        />
+      )
     },
     {
       label: 'Profil',
       path: '/profile',
-      icon: isLoggedIn ? '/profile-pic.jpg' : '/icons/profile.svg'
+      icon: isLoggedIn ? (
+        <Image
+          src="/team/mory.jpg"
+          alt="Profile"
+          width={24}
+          height={24}
+          className="w-6 h-6 rounded-full"
+        />
+      ) : (
+        <Image
+          src="/icons/profile.svg"
+          alt="Profile"
+          width={24}
+          height={24}
+          className="w-6 h-6"
+        />
+      )
     }
   ];
 
@@ -47,23 +95,16 @@ const MobileNav = () => {
               href={item.path}
               className="relative flex flex-col items-center justify-center w-16"
             >
-              <motion.div
-                initial={false}
-                animate={{
-                  scale: isActive ? 1.2 : 1,
-                  color: isActive ? '#048B9A' : '#6B7280'
-                }}
-                className="relative"
+              <div
+                className={`relative ${
+                  isActive ? 'text-[#048B9A] scale-110' : 'text-gray-500'
+                } transition-all duration-200`}
               >
                 {item.icon}
                 {isActive && (
-                  <motion.div
-                    layoutId="bubble"
-                    className="absolute -inset-1 bg-[#048B9A]/10 rounded-full -z-10"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
+                  <div className="absolute -inset-1 bg-[#048B9A]/10 rounded-full -z-10" />
                 )}
-              </motion.div>
+              </div>
               <span className={`text-xs mt-1 ${
                 isActive ? 'text-[#048B9A]' : 'text-gray-500'
               }`}>
